@@ -1,0 +1,22 @@
+# Third-party material: do not distribute
+nachito.pdf
+Measure theory/M6a.pdf
+Measure theory/M6b.pdf
+Measure theory/M6c.pdf
+
+# LaTeX auxiliary files
+*.aux
+*.log
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+
+# Python
+__pycache__/
+*.pyc
+
+# Editor / system
+.vscode/
+.DS_Store

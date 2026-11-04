@@ -1,0 +1,3222 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage[english]{estilo-mate}
+\tema{Measure Theory}
+
+\hypersetup{pdftitle={Measure Theory Notes}}
+
+\title{
+    \vspace{-2cm}
+    \textbf{\Huge Measure Theory Notes}\\
+    \vspace{0.5cm}
+}
+\author{Lucas Allara}
+\date{}
+
+\begin{document}
+
+\maketitle
+\newpage
+
+\tableofcontents
+\newpage
+
+\section{Motivation: from Riemann to Lebesgue}
+
+Let $f: [a, b] \to \mathbb{R}$ be bounded. The Riemann integral is constructed by dividing the domain
+$[a, b]$ into finitely many subintervals $[t_{k-1}, t_k]$ and approximating the area under the
+curve
+with sums
+$$ \sum_{k=1}^n f(\xi_k) (t_k - t_{k-1}), \qquad \xi_k \in [t_{k-1}, t_k]. $$
+When these sums converge as the partition is refined, $f$ is said to be Riemann-integrable.
+
+This construction has two limitations:
+\begin{itemize}
+    \item Functions with many discontinuities are not Riemann-integrable, even though
+    intuitively they should have an area. The classical example is
+    $\mathbf{1}_{\mathbb{Q} \cap [0,1]}$.
+    \item The theorems on interchanging limit and integral require strong hypotheses.
+\end{itemize}
+
+An earlier attempt (Jordan, 1892) was to measure a bounded set $E$ by approximating it from outside
+with \emph{finite} covers by intervals:
+$$ \bar c(E) = \inf\left\{ \sum_{k=1}^n \ell(I_k) : E \subseteq I_1 \cup \cdots \cup I_n \right\}, $$
+where $\ell$ denotes length. This \emph{Jordan content} fails on dense sets:
+every finite cover of $\mathbb{Q} \cap [0,1]$ by open intervals is an open set that
+contains a dense subset of $[0,1]$, and its closure (which only adds finitely many endpoints) contains
+$[0,1]$; the sum of the lengths is then $\ge 1$, so that
+$\bar c(\mathbb{Q} \cap [0,1]) = 1$ and, by the same argument,
+$\bar c(\mathbb{Q}^c \cap [0,1]) = 1$: two disjoint sets whose union is $[0,1]$ would have
+``measures'' adding up to $2$. The decisive correction was to admit \emph{countable} covers:
+with them $\mathbb{Q} \cap [0,1]$ is covered by intervals of arbitrarily small total length
+(an interval of length $\epsilon/2^n$ around the $n$-th rational), and its measure
+turns out to be $0$.
+
+\textbf{Lebesgue's idea (1904).} Instead of partitioning the domain, the range is partitioned. Take a
+partition $a_0 < a_1 < \cdots < a_n$ of the range of $f$, and for each $k$ consider the set
+$$ A_k = \{ t \in [a, b] : a_{k-1} < f(t) \le a_k \}. $$
+The integral is approximated by
+$$ \sum_{k=1}^n a_k \cdot m(A_k), $$
+where $m(A_k)$ is a notion of \emph{measure} of the set $A_k$.
+
+The goal is to construct, starting from a reasonable class of subsets called
+\emph{measurable}, a function $m: \mathcal{A} \to [0, \infty]$ with properties such as:
+\begin{itemize}
+    \item $A \subseteq B \implies m(A) \le m(B)$.
+    \item $m(A \cup B) = m(A) + m(B)$ when $A \cap B = \emptyset$.
+    \item On $\mathbb{R}$, $m([a, b]) = b - a$ and $m$ is translation invariant.
+\end{itemize}
+It will be seen that \emph{not} every subset of $\mathbb{R}$ admits such a measure; there are subsets
+ that are not measurable.
+
+\newpage
+
+\section{\texorpdfstring{$\sigma$}{σ}-algebras}
+
+\begin{definicion}{$\sigma$-algebra}{sigma_algebra}
+Let $X$ be a set. A family $\mathcal{A} \subseteq \mathcal{P}(X)$ is a $\sigma$-algebra
+on $X$ if:
+\begin{enumerate}
+    \item $\emptyset \in \mathcal{A}$.
+    \item Closed under complements: $A \in \mathcal{A} \implies A^c \in \mathcal{A}$.
+    \item Closed under countable unions: $(A_n) \subset \mathcal{A} \implies
+    \bigcup_{n=1}^\infty A_n \in \mathcal{A}$.
+\end{enumerate}
+The elements of $\mathcal{A}$ are called \emph{measurable sets} (with respect to $\mathcal{A}$).
+\end{definicion}
+
+\obs By De Morgan, a $\sigma$-algebra is also closed under countable intersections: if
+$(A_n) \subset \mathcal{A}$, then
+$$ \bigcap_n A_n = \left( \bigcup_n A_n^c \right)^c \in \mathcal{A}. $$
+Moreover, $X = \emptyset^c \in \mathcal{A}$.
+
+\subsection{Examples}
+
+\begin{ejemplo}{Trivial $\sigma$-algebra}{}
+$\mathcal{A} = \{\emptyset, X\}$ is the smallest possible $\sigma$-algebra on $X$. It satisfies
+the three axioms by inspection.
+\end{ejemplo}
+
+\begin{ejemplo}{Discrete $\sigma$-algebra}{}
+$\mathcal{A} = \mathcal{P}(X)$ is the largest $\sigma$-algebra, where every subset is
+measurable. On small sets this is the natural choice.
+\end{ejemplo}
+
+\begin{ejemplo}{Cofinite sets: an algebra that is not a $\sigma$-algebra}{}
+Let $X$ be infinite and $\mathcal{A} = \{A \subseteq X : A \text{ finite or } A^c \text{ finite}\}$.
+This family is an \emph{algebra} (closed under finite unions and intersections and under
+complements) but it is \emph{not} a $\sigma$-algebra.
+\end{ejemplo}
+
+\begin{ejemplo}{$\sigma$-algebra of coin sequences}{ej_monedas}
+Let $X = \{0, 1\}^{\mathbb{N}}$ be the space of infinite sequences of zeros and ones (the
+results of tossing a coin infinitely many times, with $1$ = heads). For each $n$ define the event
+$$ E_n = \{ x \in X : x_n = 1 \} \qquad (\text{``the } n\text{-th toss is heads''}), $$
+and take $\mathcal{A} = \sigma(E_1, E_2, \dots)$. This $\sigma$-algebra contains all the
+events described by countably many tosses: for example $\bigcap_n E_n$
+(``always heads''), $E_1 \cap E_2^c$ (``heads and then tails''), or the limits of the
+next subsection. This space will reappear when studying measures and the
+Borel-Cantelli lemmas.
+\end{ejemplo}
+
+\begin{proposicion}{Intersection of $\sigma$-algebras}{interseccion_sigmas}
+If $(\mathcal{A}_i)_{i \in I}$ is an arbitrary family of
+$\sigma$-algebras on a set $X$, then the intersection
+$$ \mathcal{B} = \bigcap_{i \in I} \mathcal{A}_i $$
+is again a $\sigma$-algebra on $X$.
+\end{proposicion}
+
+\begin{proof}\leavevmode\\
+The three axioms that define a $\sigma$-algebra are verified.
+
+\textit{It contains the empty set.} For each $i \in I$, $\mathcal{A}_i$ is a $\sigma$-algebra and
+therefore $\emptyset \in \mathcal{A}_i$. Since this holds for every $i$, $\emptyset \in \mathcal{B}$.
+
+\textit{Closed under complements.} Let $A \in \mathcal{B}$. For each $i \in I$, $A \in
+\mathcal{A}_i$, and since $\mathcal{A}_i$ is closed under complements, $A^c \in \mathcal{A}_i$.
+Therefore $A^c$ belongs to all the $\mathcal{A}_i$, that is, $A^c \in \mathcal{B}$.
+
+\textit{Closed under countable unions.} Let $(A_n)_{n \in \mathbb{N}} \subseteq \mathcal{B}$ be a
+sequence. Fix $i \in I$. For each $n$, $A_n \in \mathcal{B} \subseteq \mathcal{A}_i$, so
+that $(A_n) \subseteq \mathcal{A}_i$. Since $\mathcal{A}_i$ is closed under countable unions,
+$\bigcup_{n=1}^{\infty} A_n \in \mathcal{A}_i$. This holds for every $i \in I$, which implies
+$\bigcup_n A_n \in \mathcal{B}$.
+\end{proof}
+
+\obs This proposition is what allows defining the \emph{$\sigma$-algebra generated} by a
+family: given a set $\mathcal{F} \subseteq \mathcal{P}(X)$ there is always at least one
+$\sigma$-algebra containing $\mathcal{F}$ (for example $\mathcal{P}(X)$), and the intersection
+of all of them is the smallest $\sigma$-algebra with that property.
+
+\subsection{\texorpdfstring{$\sigma$}{σ}-algebra generated}
+
+\begin{definicion}{Generated $\sigma$-algebra}{sigma_generada}
+Given a family $\mathcal{F} \subseteq \mathcal{P}(X)$, the $\sigma$-algebra generated by
+$\mathcal{F}$ is
+$$ \sigma(\mathcal{F}) = \bigcap \{ \mathcal{A} : \mathcal{A} \text{ is a }\sigma\text{-algebra and }
+\mathcal{F} \subseteq \mathcal{A} \}. $$
+It is the smallest $\sigma$-algebra containing $\mathcal{F}$.
+\end{definicion}
+
+\subsection{Structure on countable sets}
+
+On a countable set, every $\sigma$-algebra comes from a partition, whose elements
+are called \emph{atoms}: the smallest nonempty measurable sets containing a given point.
+
+\begin{teorema}{$\sigma$-algebras on countable sets}{atomos_sigma}
+Let $X$ be countable and $\Sigma$ a $\sigma$-algebra on $X$. For each $x \in X$ define
+$$ A_x = \bigcap_{\substack{B \in \Sigma \\ x \in B}} B. $$
+The family $\mathcal{A} = \{A_x : x \in X\}$ is a partition of $X$ by elements of $\Sigma$,
+and $\Sigma = \sigma(\mathcal{A})$.
+\end{teorema}
+
+\begin{proof}
+Each $B$ in the intersection contains $x$, so that $x \in A_x$. In particular the $A_x$
+cover $X$.
+
+To see that $A_x \in \Sigma$, the intersection is reformulated in terms of the complement, which is
+at most countable. For each $y \in A_x^c$, since $y$ does not belong to the intersection,
+there is some $B_y \in \Sigma$ with $x \in B_y$ but $y \notin B_y$. Define
+$$ A_x' = \bigcap_{y \in A_x^c} B_y, $$
+which is an at most countable intersection of elements of $\Sigma$ and therefore belongs to
+$\Sigma$. Each $B_y$ is among the sets that define $A_x$, which gives $A_x \subseteq B_y$
+for every $y \in A_x^c$, and then $A_x \subseteq A_x'$. Conversely, if $y \in A_x^c$
+then $y \notin B_y$ and therefore $y \notin A_x'$, which shows $A_x^c \subseteq (A_x')^c$,
+that is $A_x' \subseteq A_x$. It follows that $A_x = A_x' \in \Sigma$.
+
+Now a minimality property is shown: if $B \in \Sigma$ is nonempty and $B \subseteq A_x$,
+then $B = A_x$. Suppose first that $x \notin B$. The complement $B^c$ belongs to $\Sigma$
+and contains $x$, so that it is among the sets that define $A_x$; then $A_x \subseteq
+B^c$, equivalent to $A_x \cap B = \emptyset$. But $B \subseteq A_x$ nonempty forces $A_x \cap B
+= B \ne \emptyset$, a contradiction. Thus $x \in B$, and since $B$ is a measurable set containing $x$,
+$A_x \subseteq B$. Together with the hypothesis $B \subseteq A_x$, one gets $B = A_x$.
+
+The partition property follows from this. If $A_x \cap A_y$ is nonempty, that intersection
+is in $\Sigma$, is nonempty and is contained in $A_x$, so that minimality forces
+$A_x \cap A_y = A_x$. Consequently $A_x \subseteq A_y$, and exchanging $x$ with $y$ one
+obtains $A_y \subseteq A_x$, that is $A_x = A_y$. Combined with the fact that the $A_x$ cover $X$, this
+proves that $\mathcal{A}$ is a partition.
+
+It remains to see $\Sigma = \sigma(\mathcal{A})$. The inclusion $\sigma(\mathcal{A}) \subseteq \Sigma$
+is a consequence of each $A_x \in \Sigma$. For the other inclusion, given $B \in \Sigma$
+it is claimed that $B = \bigcup_{x \in B} A_x$. The inclusion $\subseteq$ follows from $x \in A_x$ for each $x
+\in B$. For the inclusion $\supseteq$, if $x \in B$ then $B$ is one of the sets that
+define $A_x$, which gives $A_x \subseteq B$. The union is countable because $B \subseteq X$ is,
+and each $A_x \in \sigma(\mathcal{A})$, so that $B \in \sigma(\mathcal{A})$.
+\end{proof}
+
+\obs The $\sigma$-algebras on countable sets are then always \emph{discrete}: they
+are generated by a partition.
+
+\begin{definicion}{Borel $\sigma$-algebra}{borel}
+The Borel $\sigma$-algebra on $\mathbb{R}$ is the one generated by the open sets:
+$$ \mathcal{B}(\mathbb{R}) = \sigma(\{U \subseteq \mathbb{R} : U \text{ open}\}). $$
+Its elements are called \emph{Borel sets}.
+\end{definicion}
+
+\subsection{Borel from intervals}
+
+Although the Borel $\sigma$-algebra is defined from \emph{all} open sets, on
+$\mathbb{R}$ a much smaller family suffices: the open intervals $(a, b)$. Something more is proved:
+every open subset of $\mathbb{R}$ decomposes as an at most countable \emph{disjoint} union of
+open intervals. These intervals are the connected components of the open set.
+
+\begin{proposicion}{Structure of open sets in $\mathbb{R}$}{abiertos_R}
+Every open $A \subseteq \mathbb{R}$ is written as an at most countable union of disjoint open
+intervals. In particular,
+$$ \mathcal{B}(\mathbb{R}) = \sigma(\{(a, b) : a < b\}). $$
+\end{proposicion}
+
+\begin{proof}
+The strategy is to assign to each point $a \in A$ the largest open interval contained in $A$ that
+contains it. These intervals cover $A$ and, by their maximality, are pairwise disjoint. Since each
+one contains a rational, the number of distinct intervals turns out to be at most countable.
+
+For each $a \in A$ define
+$$ x(a) = \sup\{x \in \mathbb{R} \setminus A : x < a\}, \qquad y(a) = \inf\{y \in \mathbb{R}
+\setminus A : y > a\}, $$
+with the convention $\sup \emptyset = -\infty$, $\inf \emptyset = +\infty$, and define
+$I_a = (x(a), y(a))$.
+
+Since $A$ is open and $a \in A$, there is $\delta > 0$ with
+$(a - \delta, a + \delta) \subseteq A$. Since no point of the neighborhood $(a - \delta, a)$ is in
+$\mathbb{R} \setminus A$, every point in the set whose supremum is $x(a)$ satisfies
+$x \le a - \delta$. Therefore $x(a) \le a - \delta < a$, and likewise $y(a) > a$, so that
+$a \in I_a$.
+
+For the inclusion $I_a \subseteq A$, let $t \in I_a$ with $t \ne a$, and suppose by contradiction
+$t \notin A$. If $t < a$, then $t$ belongs to the set $\{x \in \mathbb{R} \setminus A :
+x < a\}$ whose supremum is $x(a)$, which forces $t \le x(a)$ and contradicts $t > x(a)$. The case
+$t > a$ is symmetric with respect to $y(a)$.
+
+As a consequence, $A = \bigcup_{a \in A} I_a$: the inclusion $\supseteq$ is $I_a \subseteq A$, and
+the $\subseteq$ one is $a \in I_a$.
+
+Suppose $I_a \cap I_b \ne \emptyset$ and let $z \in I_a \cap I_b$. By definition of
+$I_a = (x(a), y(a))$ and $I_b = (x(b), y(b))$, the inequalities
+$$ x(a) < z < y(a) \qquad \text{and} \qquad x(b) < z < y(b) $$
+hold.
+
+First $y(a) = y(b)$ is proved by ruling out the possibility $y(a) < y(b)$ (the case $y(a) > y(b)$
+is symmetric, exchanging the roles of $a$ and $b$). Indeed, suppose $y(a) < y(b)$. By
+definition of $y(a)$ as the infimum of $\{y \in \mathbb{R} \setminus A : y > a\}$,
+$y(a) \notin A$. By the inequalities $z < y(a) < y(b)$, one has $y(a) \in (z, y(b))$. But
+$(z, y(b)) \subseteq I_b \subseteq A$, whence $y(a) \in A$, contradicting $y(a) \notin A$.
+It follows that $y(a) = y(b)$.
+
+An analogous argument on the other side proves $x(a) = x(b)$: if $x(a) > x(b)$, by definition
+of $x(a)$ as the supremum of $\{x \in \mathbb{R} \setminus A : x < a\}$, $x(a) \notin A$. By the
+inequalities $x(b) < x(a) < z$, one has $x(a) \in (x(b), z)$. But $(x(b), z) \subseteq
+I_b \subseteq A$, whence $x(a) \in A$, contradicting $x(a) \notin A$. The case $x(a) < x(b)$ is
+symmetric. It follows that $x(a) = x(b)$.
+
+With $x(a) = x(b)$ and $y(a) = y(b)$ it follows that $I_a = I_b$.
+
+Each $I_a$ is a nonempty open subset of $\mathbb{R}$, so that by
+density of $\mathbb{Q}$ it contains at least one rational. Choosing one rational per distinct
+interval yields an injective map from the family of distinct intervals into
+$\mathbb{Q}$ (it is injective because two distinct intervals are disjoint). Consequently, the
+family injects into $\mathbb{Q}$ and is at most countable.
+
+Let $\mathcal{I} = \{(a, b)
+: a < b\}$. For one inclusion, each $(a, b)$ is open, which gives $\mathcal{I} \subseteq
+\mathcal{B}(\mathbb{R})$ and, by minimality, $\sigma(\mathcal{I}) \subseteq
+\mathcal{B}(\mathbb{R})$.
+For the other inclusion, every open set is written as a countable union of elements of
+$\mathcal{I}$ by what was proved, and therefore belongs to $\sigma(\mathcal{I})$. Thus,
+$\sigma(\mathcal{I})$ is a $\sigma$-algebra containing the open sets, and by minimality of
+$\mathcal{B}(\mathbb{R})$, $\mathcal{B}(\mathbb{R}) \subseteq \sigma(\mathcal{I})$.
+\end{proof}
+
+\begin{corolario}{Sets in $\mathcal{B}(\mathbb{R})$}{borel_contiene}
+$\mathcal{B}(\mathbb{R})$ contains the open sets, the closed sets, the points, the half-open
+intervals and the half-lines.
+\end{corolario}
+ 
+\subsection{Operations with sequences}
+
+\begin{definicion}{Limit superior and inferior of sets}{limsup_conjuntos}
+Given $(A_n) \subset \mathcal{A}$:
+\begin{align*}
+\varlimsup_n A_n &= \bigcap_{m=1}^\infty \bigcup_{k \ge m} A_k = \{x : x \in A_n \text{ for
+infinitely many } n\}, \\
+\varliminf_n A_n &= \bigcup_{m=1}^\infty \bigcap_{k \ge m} A_k = \{x : x \in A_n \text{ from
+some } n \text{ on}\}.
+\end{align*}
+\end{definicion}
+
+\obs If $\mathcal{A}$ is a $\sigma$-algebra and $(A_n) \subset \mathcal{A}$, then
+$\varlimsup A_n, \varliminf A_n \in \mathcal{A}$.
+
+\begin{proposicion}{Properties of the limit superior and inferior}{props_limsup_liminf}
+Let $(A_n)$ be a sequence of subsets of $X$. Then:
+\begin{enumerate}
+    \item $\varliminf_n A_n \subseteq \varlimsup_n A_n$.
+    \item $\left(\varliminf_n A_n\right)^c = \varlimsup_n A_n^c$ and
+    $\left(\varlimsup_n A_n\right)^c = \varliminf_n A_n^c$.
+    \item If $A \subseteq A_n \subseteq B$ for every $n$, then
+    $A \subseteq \varliminf_n A_n \subseteq \varlimsup_n A_n \subseteq B$.
+    \item If $(A_n)$ is increasing, $\varliminf_n A_n = \varlimsup_n A_n = \bigcup_n A_n$.
+    \item If $(A_n)$ is decreasing, $\varliminf_n A_n = \varlimsup_n A_n = \bigcap_n A_n$.
+\end{enumerate}
+\end{proposicion}
+
+\begin{proof}\leavevmode\\
+(i) If $x \in \varliminf_n A_n = \bigcup_m \bigcap_{k \ge m} A_k$, there is $m_0$ such that $x \in
+A_k$ for every $k \ge m_0$; that is, $x$ is in all the $A_k$ except finitely many. In particular,
+$x$ is in infinitely many $A_k$, so that for every $m$ there is $k \ge m$ with $x \in A_k$. This
+means $x \in \bigcap_m \bigcup_{k \ge m} A_k = \varlimsup_n A_n$.
+
+(ii) By De Morgan's laws applied twice,
+$$ \left(\varliminf_n A_n\right)^c = \left(\bigcup_m \bigcap_{k \ge m} A_k\right)^c =
+\bigcap_m \left(\bigcap_{k \ge m} A_k\right)^c = \bigcap_m \bigcup_{k \ge m} A_k^c =
+\varlimsup_n A_n^c. $$
+The other equality is proved analogously, exchanging $\bigcup$ and $\bigcap$.
+
+(iii) If $x \in A$, then $x \in A_n$ for every $n$, in particular $x \in \bigcap_{k \ge m}
+A_k$ for every $m$. Hence $x \in \bigcup_m \bigcap_{k \ge m} A_k = \varliminf_n A_n$, which
+gives $A \subseteq \varliminf_n A_n$. Combined with (i), $A \subseteq \varliminf_n A_n \subseteq
+\varlimsup_n A_n$.
+
+For the upper bound, $A_n \subseteq B$ for every $n$ is equivalent to $B^c \subseteq A_n^c$ for every
+$n$. Applying the inclusion $B^c \subseteq \varliminf_n A_n^c$ (just proved with $B^c$ in
+place of $A$ and $A_n^c$ in place of $A_n$) and then (ii),
+$$ B^c \subseteq \varliminf_n A_n^c = \left(\varlimsup_n A_n\right)^c, $$
+whence, taking complements, $\varlimsup_n A_n \subseteq B$.
+
+(iv) If $(A_n)$ is increasing, $\bigcap_{k \ge m} A_k = A_m$ for every $m$, so that
+$$ \varliminf_n A_n = \bigcup_m \bigcap_{k \ge m} A_k = \bigcup_m A_m. $$
+On the other hand, $\bigcup_{k \ge m} A_k = \bigcup_k A_k$ for every $m$ (the union does not change when
+starting later in an increasing sequence), so that
+$$ \varlimsup_n A_n = \bigcap_m \bigcup_{k \ge m} A_k = \bigcup_n A_n. $$
+
+(v) If $(A_n)$ is decreasing, $(A_n^c)$ is increasing. Applying (iv) to $(A_n^c)$ and then (ii),
+$$ \left(\varlimsup_n A_n\right)^c = \varliminf_n A_n^c = \bigcup_n A_n^c =
+\left(\bigcap_n A_n\right)^c, $$
+and analogously for $\varliminf$. Taking complements, $\varliminf_n A_n = \varlimsup_n A_n
+= \bigcap_n A_n$.
+\end{proof}
+
+\begin{ejemplo}{Computing limits of sets}{ej_limites_conjuntos}
+\begin{enumerate}
+    \item Let $A_n = [0, 2]$ if $n$ is odd and $A_n = [1, 4]$ if $n$ is even. A point is in
+    infinitely many $A_n$ if and only if it belongs to $[0,2] \cup [1,4] = [0,4]$, and it is in all but
+    finitely many if and only if it belongs to $[0,2] \cap [1,4] = [1,2]$. Thus
+    $$ \varliminf_n A_n = [1, 2], \qquad \varlimsup_n A_n = [0, 4], $$
+    and the sequence does not converge as sets.
+    \item Let $A_n = [1/n, 1)$. The sequence is increasing, and by Proposition
+    \ref{prop:props_limsup_liminf},
+    $$ \varliminf_n A_n = \varlimsup_n A_n = \bigcup_n [1/n, 1) = (0, 1). $$
+    The sequence converges to the set $(0,1)$; observe that the limit does not contain $0$
+    even though each $A_n$ is ``attached'' to it.
+\end{enumerate}
+\end{ejemplo}
+
+\obs In the space $X = \{0,1\}^{\mathbb{N}}$ of coin tosses with the events
+$E_n = \{x : x_n = 1\}$, the limits have a direct probabilistic reading:
+$$ \varlimsup_n E_n = \{\text{heads infinitely often}\}, \qquad
+\varliminf_n E_n = \{\text{eventually always heads}\}. $$
+The inclusion $\varliminf \subseteq \varlimsup$ is, with this reading, transparent: if from
+some moment on heads always comes up, in particular heads comes up infinitely often.
+
+\newpage
+
+\section{Non-measurable sets: Vitali's example}
+
+Before moving on to the definition of measure and to Lebesgue's construction, it is convenient to understand
+why one cannot expect \emph{every} subset of $\mathbb{R}$ to admit a measure with the
+desired properties (translation invariance and $\sigma$-additivity). The
+classical example showing that this is impossible is \emph{Vitali's} construction: a subset
+$V \subseteq [0, 1]$ that cannot be measurable with respect to any translation-invariant
+measure extending the ``length'' $m([0, 1]) = 1$.
+
+\begin{teorema}{Existence of non-measurable sets}{vitali}
+There is no function $m: \mathcal{P}(\mathbb{R}) \to [0, \infty]$ that simultaneously satisfies:
+\begin{enumerate}
+    \item $m$ is $\sigma$-additive: if $(A_n)$ is disjoint, $m(\bigcup_n A_n) = \sum_n m(A_n)$.
+    \item $m$ is translation invariant: $m(A + t) = m(A)$ for every $A \subseteq \mathbb{R}$
+    and every $t \in \mathbb{R}$.
+    \item $m([0, 1]) = 1$.
+\end{enumerate}
+\end{teorema}
+
+\begin{proof}\leavevmode\\
+Assuming the axiom of choice, a $V \subseteq [0, 1]$ is constructed that will lead to a
+contradiction under (i)--(iii).
+
+\textit{Construction.} On $[0, 1]$ define the equivalence relation
+$$ x \sim y \ \Leftrightarrow \ x - y \in \mathbb{Q}. $$
+Each class $[x]$ is dense in $[0, 1]$ (because $\mathbb{Q}$ is dense). By the axiom of choice,
+choose one representative for each class and form
+$$ V = \{\text{one representative of each class}\} \subseteq [0, 1]. $$
+
+\textit{Translates.} Enumerate $\mathbb{Q} \cap [-1, 1] = \{r_1, r_2, \dots\}$, which is countable.
+For each $k$ define
+$$ V_k = V + r_k = \{v + r_k : v \in V\}. $$
+
+\textit{The $V_k$ are pairwise disjoint.} If $V_k \cap V_j \ne \emptyset$, there are $v_1, v_2 \in
+V$ with $v_1 + r_k = v_2 + r_j$, whence $v_1 - v_2 = r_j - r_k \in \mathbb{Q}$, that is
+$v_1 \sim v_2$. Since $V$ contains a single representative per class, $v_1 = v_2$, and then
+$r_k = r_j$, that is $k = j$.
+
+\textit{$[0, 1] \subseteq \bigcup_k V_k \subseteq [-1, 2]$.} The inclusion on the right is a
+consequence of the fact that $V \subseteq [0, 1]$ and $r_k \in [-1, 1]$ give $V_k \subseteq [-1, 2]$. For the
+inclusion on the left, given $x \in [0, 1]$, its class $[x]$ has a representative $v \in V$,
+and $x - v \in \mathbb{Q} \cap [-1, 1]$ (because $x, v \in [0, 1]$), so that $x - v = r_k$ for
+some $k$, that is $x = v + r_k \in V_k$.
+
+\textit{Contradiction.} Suppose that $V$ is measurable. By (ii), $m(V_k) = m(V)$ for every $k$,
+and by (i),
+$$ m\!\left(\bigcup_k V_k\right) = \sum_{k=1}^\infty m(V_k) = \sum_{k=1}^\infty m(V). $$
+Cases are distinguished according to the value of $m(V) \in [0, \infty]$:
+\begin{itemize}
+    \item If $m(V) = 0$, the sum gives $0$, and by monotonicity $m([0, 1]) \le m(\bigcup_k V_k) = 0$.
+    But $m([0, 1]) = 1$ by (iii), a contradiction.
+    \item If $m(V) > 0$, $\sum_k m(V) = +\infty$, whereas by monotonicity $m(\bigcup_k V_k)
+    \le m([-1, 2]) = 3$ (the latter by translation of $[0, 1]$ and additivity: $m([-1, 2]) =
+    m([-1, 0]) + m([0, 1]) + m([1, 2]) = 3$). Contradiction.
+\end{itemize}
+In either case a contradiction is reached. Therefore $V$ cannot be measurable with respect to $m$, and
+in particular there is no function $m: \mathcal{P}(\mathbb{R}) \to [0, \infty]$ satisfying
+(i)--(iii) on all of $\mathcal{P}(\mathbb{R})$.
+\end{proof}
+
+\obs A translation-invariant, $\sigma$-additive and
+normalized measure cannot be defined on \emph{the whole} $\sigma$-algebra $\mathcal{P}(\mathbb{R})$. The most that
+can be achieved (with the axiom of choice) is a measure on a strictly
+smaller $\sigma$-algebra: the Borel sets, or somewhat more: the Lebesgue-measurable sets.
+
+\newpage
+
+\section{Measures}
+
+\begin{definicion}{Measure}{def_medida}
+Let $(X, \mathcal{A})$ be a pair with $\mathcal{A}$ a $\sigma$-algebra on $X$. A function
+$\mu: \mathcal{A} \to [0, \infty]$ is a \emph{measure} if:
+\begin{enumerate}
+    \item $\mu(\emptyset) = 0$.
+    \item ($\sigma$-additivity) If $(A_n) \subset \mathcal{A}$ is a pairwise disjoint family,
+    $$ \mu\!\left(\bigcup_{n=1}^\infty A_n\right) = \sum_{n=1}^\infty \mu(A_n). $$
+\end{enumerate}
+The triple $(X, \mathcal{A}, \mu)$ is called a \emph{measure space}.
+
+If $\mu(X) < \infty$, $\mu$ is said to be \emph{finite}. If $X = \bigcup_n X_n$ with
+$\mu(X_n) < \infty$ for every $n$, $\mu$ is said to be \emph{$\sigma$-finite}. If $\mu(X) = 1$,
+$\mu$ is a \emph{probability}.
+\end{definicion}
+
+\subsection{Examples}
+
+\begin{proposicion}{Dirac delta}{delta_dirac}
+Let $X$ be a nonempty set and $x_0 \in X$ a fixed point. The function $\delta_{x_0}:
+\mathcal{P}(X) \to [0, \infty]$ defined by
+$$ \delta_{x_0}(A) = \begin{cases} 1, & x_0 \in A, \\ 0, & x_0 \notin A, \end{cases} $$
+is a measure (called the \emph{Dirac delta} concentrated at $x_0$).
+\end{proposicion}
+
+\begin{proof}\leavevmode\\
+\textit{$\delta_{x_0}(\emptyset) = 0$.} Since $x_0 \notin \emptyset$, $\delta_{x_0}(\emptyset) = 0$.
+
+\textit{$\sigma$-additivity.} Let $(A_n)_{n \in \mathbb{N}} \subset \mathcal{P}(X)$ be a pairwise
+disjoint family, and $A = \bigcup_{n} A_n$. Two cases are distinguished according to whether $x_0$ is in
+$A$ or not.
+
+\textit{Case 1: $x_0 \in A$.} There is $n_0 \in \mathbb{N}$ with $x_0 \in A_{n_0}$. Since the
+$A_n$ are pairwise disjoint, that $n_0$ is unique: for every $n \ne n_0$, $x_0 \notin A_n$.
+Therefore
+$$ \sum_{n=1}^{\infty} \delta_{x_0}(A_n) = \delta_{x_0}(A_{n_0}) + \sum_{n \ne n_0}
+\delta_{x_0}(A_n) = 1 + 0 = 1 = \delta_{x_0}(A). $$
+
+\textit{Case 2: $x_0 \notin A$.} Then $x_0 \notin A_n$ for every $n$, so that
+$\delta_{x_0}(A_n) = 0$ for every $n$, and
+$$ \sum_{n=1}^{\infty} \delta_{x_0}(A_n) = 0 = \delta_{x_0}(A). $$
+\end{proof}
+
+\obs $\delta_{x_0}$ is a probability ($\delta_{x_0}(X) = 1$). It concentrates all the mass at the
+point $x_0$.
+
+\begin{proposicion}{Counting measure}{medida_conteo}
+Let $X$ be a nonempty set. The function $\mu: \mathcal{P}(X) \to [0, \infty]$ defined by
+$$ \mu(A) = \#A = \begin{cases} \text{number of elements of } A, & \text{if } A \text{ is finite,}
+\\ \infty, & \text{if } A \text{ is infinite,} \end{cases} $$
+is a measure (called the \emph{counting measure}).
+\end{proposicion}
+
+\begin{proof}\leavevmode\\
+\textit{$\mu(\emptyset) = 0$.} The empty set has zero elements.
+
+\textit{$\sigma$-additivity.} Let $(A_n)_{n \in \mathbb{N}}$ be pairwise disjoint and
+$A = \bigcup_n A_n$. The structure of the proof depends on whether $A$ is finite or infinite.
+
+\textit{Case 1: $A$ finite.} Since each $A_n \subseteq A$, all the $A_n$ are finite. Moreover,
+since the $A_n$ are disjoint and $A$ is finite, only finitely many of them can be
+nonempty; otherwise $A$ would contain at least one element for each nonempty $A_n$,
+contradicting $\#A < \infty$. Renumbering, suppose $A_1, \dots, A_N$ nonempty and $A_n =
+\emptyset$ for $n > N$. By elementary counting of finite disjoint unions,
+$$ \#A = \#(A_1 \sqcup \cdots \sqcup A_N) = \sum_{n=1}^{N} \#A_n = \sum_{n=1}^{\infty} \#A_n, $$
+where the last equality uses that $\#A_n = 0$ for $n > N$.
+
+\textit{Case 2: $A$ infinite.} Then $\mu(A) = \infty$. Two subcases are distinguished:
+\begin{itemize}
+    \item If there is $n_0$ with $A_{n_0}$ infinite, then $\#A_{n_0} = \infty$, and
+    $$ \sum_{n=1}^{\infty} \#A_n \ge \#A_{n_0} = \infty. $$
+    \item If all the $A_n$ are finite, since $A$ is infinite there must be infinitely many nonempty
+    $A_n$; otherwise $A$ would be a finite union of finite sets, and therefore finite. The series
+    of positive terms
+    $$ \sum_{n=1}^{\infty} \#A_n $$
+    then has infinitely many terms $\ge 1$, and diverges to $\infty$.
+\end{itemize}
+In both subcases $\sum_n \#A_n = \infty = \#A$.
+\end{proof}
+
+\obs The counting measure is finite if and only if $X$ is finite, and it is $\sigma$-finite if and only if
+$X$ is at most countable. On $X = \mathbb{N}$ with the counting measure, integrals
+with respect to $\mu$ reduce to series.
+
+\begin{ejemplo}{Bernoulli measure}{ej_medida_bernoulli}
+On $X = \{0,1\}^{\mathbb{N}}$ with the $\sigma$-algebra generated by the events
+$E_n = \{x : x_n = 1\}$ (Example \ref{ej:ej_monedas}), there is a unique probability $P$ that
+models independent tosses of a fair coin: on the events that fix $k$
+coordinates,
+$$ P(\{x : x_{i_1} = \epsilon_1, \dots, x_{i_k} = \epsilon_k\}) = \frac{1}{2^k}. $$
+With it the probability of \emph{heads at some point} can be computed. The event is
+$\bigcup_n E_n$, which is not a disjoint union; it is made disjoint with
+\begin{align*}
+A_n = E_n \setminus (E_1 \cup \cdots \cup E_{n-1})
+&= \{x : x_1 = \cdots = x_{n-1} = 0, \ x_n = 1\} \\
+&= \{\text{the first heads is the } n\text{-th toss}\},
+\end{align*}
+which fixes $n$ coordinates, so that $P(A_n) = 1/2^n$. By $\sigma$-additivity,
+$$ P\!\left(\bigcup_n E_n\right) = \sum_{n=1}^\infty P(A_n) = \sum_{n=1}^\infty \frac{1}{2^n}
+= 1. $$
+With probability $1$ some heads comes up.
+\end{ejemplo}
+
+\obs Of the previous examples, only the Dirac delta and the counting measure have been
+\emph{constructed}. For the Bernoulli measure, and for the Lebesgue measure on $\mathbb{R}$
+(which assigns to each interval its length), existence has not been proved so far: that is the
+goal of the section on generating measures.
+
+\subsection{Basic properties}
+
+\begin{teorema}{Properties of a measure}{prop_medida}
+Let $(X, \mathcal{A}, \mu)$ be a measure space. For $A, B, A_n \in \mathcal{A}$:
+\begin{enumerate}
+    \item If $E \subseteq F$, $\mu(E) \le \mu(F)$.
+    \item If $E \subseteq F$ and $\mu(E) < \infty$, $\mu(F \setminus E) = \mu(F) - \mu(E)$.
+    \item If $\mu(A \cap B) < \infty$,
+    $$ \mu(A \cup B) = \mu(A) + \mu(B) - \mu(A \cap B). $$
+    \item For any (not necessarily disjoint) family $(A_n)$,
+    $$ \mu\!\left(\bigcup_n A_n\right) \le \sum_n \mu(A_n). $$
+    \item If $A_n \nearrow A$ (that is, $A_n \subseteq A_{n+1}$ and $A = \bigcup_n A_n$),
+    $$ \mu(A) = \lim_{n \to \infty} \mu(A_n). $$
+    \item If $A_n \searrow A$ and $\mu(A_1) < \infty$,
+    $$ \mu(A) = \lim_{n \to \infty} \mu(A_n). $$
+    \item If $\varlimsup_n A_n = \varliminf_n A_n = A$ (that is, $(A_n)$ converges to $A$ as
+    sets) and $\mu\!\left(\bigcup_n A_n\right) < \infty$,
+    $$ \mu(A) = \lim_{n \to \infty} \mu(A_n). $$
+\end{enumerate}
+\end{teorema}
+
+\begin{proof}\leavevmode\\
+(i) $F = E \cup (F \setminus E)$ is a disjoint union, so that
+$\mu(F) = \mu(E) + \mu(F \setminus E)
+\ge \mu(E)$.
+
+(ii) It follows from the previous step by solving for $\mu(F \setminus E)$.
+
+(iii) Decompose $A \cup B$ into three disjoint sets: $A \cup B = (A \setminus B) \sqcup
+(B \setminus A) \sqcup (A \cap B)$. By $\sigma$-additivity,
+$$ \mu(A \cup B) = \mu(A \setminus B) + \mu(B \setminus A) + \mu(A \cap B). $$
+Analogously, $A = (A \setminus B) \sqcup (A \cap B)$ and $B = (B \setminus A) \sqcup
+(A \cap B)$, whence
+$$ \mu(A) + \mu(B) = \mu(A \setminus B) + \mu(B \setminus A) + 2 \mu(A \cap B). $$
+Subtracting $\mu(A \cap B)$ (finite by hypothesis, which avoids indeterminate forms $\infty - \infty$)
+yields $\mu(A) + \mu(B) - \mu(A \cap B) = \mu(A \cup B)$.
+
+(iv) Make the family disjoint: $B_1 = A_1$, $B_n = A_n \setminus (A_1 \cup \cdots \cup A_{n-1})$. The $B_n$ are
+disjoint, $B_n \subseteq A_n$ (so $\mu(B_n) \le \mu(A_n)$), and $\bigcup B_n = \bigcup A_n$. Hence
+$$ \mu\!\Big(\!\bigcup A_n\Big) = \sum \mu(B_n) \le \sum \mu(A_n). $$
+
+(v) If $A_n \nearrow A$, make it disjoint with $B_1 = A_1$, $B_n = A_n \setminus A_{n-1}$.
+Then $A_n = \bigsqcup_{k=1}^n B_k$ and $A = \bigsqcup_k B_k$, so that
+$$ \mu(A) = \sum_{k=1}^\infty \mu(B_k) = \lim_n \sum_{k=1}^n \mu(B_k) = \lim_n \mu(A_n). $$
+
+(vi) If $A_n \searrow A$, define $C_n = A_1 \setminus A_n$, which increases to $A_1 \setminus A$.
+Applying (v) and (ii) (using $\mu(A_1) < \infty$),
+$$ \mu(A_1) - \mu(A) = \mu(A_1 \setminus A) = \lim_n \mu(C_n) = \lim_n (\mu(A_1) - \mu(A_n)) =
+\mu(A_1) - \lim_n \mu(A_n). $$
+Cancelling $\mu(A_1)$, $\mu(A) = \lim \mu(A_n)$.
+
+(vii) Define
+$$ B_m = \bigcap_{k \ge m} A_k, \qquad C_m = \bigcup_{k \ge m} A_k. $$
+By construction, $B_m \nearrow \varliminf_n A_n = A$ and $C_m \searrow \varlimsup_n A_n = A$.
+Moreover, $B_m \subseteq A_m \subseteq C_m$ by monotonicity of intersection and union.
+
+By (v) applied to $(B_m)$,
+$$ \lim_m \mu(B_m) = \mu(A). $$
+By (vi) applied to $(C_m)$ (which is legitimate because $\mu(C_1) \le \mu(\bigcup_n A_n) < \infty$),
+$$ \lim_m \mu(C_m) = \mu(A). $$
+By (i), $\mu(B_m) \le \mu(A_m) \le \mu(C_m)$ for every $m$. By the squeeze
+theorem, $\lim_m \mu(A_m) = \mu(A)$.
+\end{proof}
+
+\subsection{Borel-Cantelli lemmas}
+
+Recall the probabilistic interpretation of $\varlimsup A_n$: a point $\omega$ belongs
+to $\varlimsup A_n = \bigcap_m \bigcup_{k \ge m} A_k$ if and only if it is in infinitely many $A_n$. That
+is why one usually writes $\{A_n \text{ infinitely often}\}$. The Borel-Cantelli lemmas give
+conditions under which this event has measure zero or one.
+
+\begin{teorema}{Borel-Cantelli (I)}{borel_cantelli_I}
+Let $(X, \mathcal{A}, \mu)$ be a measure space and $(A_n) \subset \mathcal{A}$. If
+$$ \sum_{n=1}^\infty \mu(A_n) < \infty, $$
+then $\mu(\varlimsup_n A_n) = 0$.
+\end{teorema}
+
+\begin{proof}
+By definition, $\varlimsup_n A_n = \bigcap_{m=1}^\infty C_m$, where $C_m = \bigcup_{k \ge m}
+A_k$. By sub-$\sigma$-additivity,
+$$ \mu(C_m) = \mu\!\left(\bigcup_{k \ge m} A_k\right) \le \sum_{k=m}^\infty \mu(A_k). $$
+Since $\sum_n \mu(A_n) < \infty$, its tail $\sum_{k \ge m} \mu(A_k)$ tends to $0$ as $m \to
+\infty$. In particular, $\mu(C_1) \le \sum_{k=1}^\infty \mu(A_k) < \infty$, so that the
+decreasing sequence $(C_m)$ satisfies the hypotheses of continuity along decreasing
+sequences. Then
+$$ \mu\!\left(\varlimsup_n A_n\right) = \mu\!\left(\bigcap_m C_m\right) = \lim_{m \to \infty}
+\mu(C_m) \le \lim_{m \to \infty} \sum_{k=m}^\infty \mu(A_k) = 0. $$
+By monotonicity, $\mu(\varlimsup A_n) = 0$.
+\end{proof}
+
+\obs Borel-Cantelli (I) requires neither independence of the $A_n$ nor that $\mu$ be a probability:
+it holds for every measure.
+
+\begin{definicion}{Independence of events}{independencia_eventos}
+Let $(\Omega, \mathcal{F}, \mathbb{P})$ be a probability space.
+\begin{enumerate}
+    \item Two events $A, B \in \mathcal{F}$ are \emph{independent} if
+    $\mathbb{P}(A \cap B) = \mathbb{P}(A) \mathbb{P}(B)$.
+    \item A finite family $A_1, \dots, A_n \in \mathcal{F}$ is \emph{independent} if for every
+    subset of indices $\{i_1, \dots, i_k\} \subseteq \{1, \dots, n\}$ (with $k \ge 1$),
+    $$ \mathbb{P}(A_{i_1} \cap \cdots \cap A_{i_k}) = \mathbb{P}(A_{i_1}) \cdots
+    \mathbb{P}(A_{i_k}). $$
+    \item A family $(A_n)_{n \in \mathbb{N}}$ is \emph{independent} if every finite subfamily
+    of it is.
+\end{enumerate}
+\end{definicion}
+
+\obs If the $(A_n)$ are independent, so are the complements $(A_n^c)$ (in any
+finite subfamily). This follows by inclusion-exclusion: for example, $\mathbb{P}(A_1^c \cap
+A_2^c) = 1 - \mathbb{P}(A_1) - \mathbb{P}(A_2) + \mathbb{P}(A_1) \mathbb{P}(A_2) = (1 -
+\mathbb{P}(A_1))(1 - \mathbb{P}(A_2)) = \mathbb{P}(A_1^c) \mathbb{P}(A_2^c)$; the general case by
+induction.
+
+\begin{teorema}{Borel-Cantelli (II)}{borel_cantelli_II}
+Let $(\Omega, \mathcal{F}, \mathbb{P})$ be a probability space and $(A_n) \subset \mathcal{F}$ an
+\emph{independent} sequence. If
+$$ \sum_{n=1}^\infty \mathbb{P}(A_n) = \infty, $$
+then $\mathbb{P}(\varlimsup_n A_n) = 1$.
+\end{teorema}
+
+\begin{proof}
+It will suffice to prove $\mathbb{P}((\varlimsup_n A_n)^c) = 0$. By the properties seen earlier,
+$$ (\varlimsup_n A_n)^c = \varliminf_n A_n^c. $$
+By sub-$\sigma$-additivity, it is enough to see that for every $m$,
+$$ \mathbb{P}\!\left(\bigcap_{k \ge m} A_k^c\right) = 0. $$
+Fix $m$. By continuity along decreasing sequences (the finite intersection $\bigcap_{k =
+m}^M A_k^c$ decreases to $\bigcap_{k \ge m} A_k^c$ and has probability $\le 1 < \infty$),
+$$ \mathbb{P}\!\left(\bigcap_{k \ge m} A_k^c\right) = \lim_{M \to \infty} \mathbb{P}\!\left(
+\bigcap_{k = m}^M A_k^c\right). $$
+Since $(A_n)$ is independent, so is $(A_n^c)$. Applying the
+factorization to the finite family $A_m^c, \dots, A_M^c$,
+$$ \mathbb{P}\!\left(\bigcap_{k = m}^M A_k^c\right) = \prod_{k = m}^M \mathbb{P}(A_k^c) =
+\prod_{k = m}^M (1 - \mathbb{P}(A_k)). $$
+The inequality $1 - x \le e^{-x}$, valid for every $x \in \mathbb{R}$, is used:
+$$ \prod_{k = m}^M (1 - \mathbb{P}(A_k)) \le \prod_{k = m}^M e^{-\mathbb{P}(A_k)} =
+\exp\!\left(-\sum_{k = m}^M \mathbb{P}(A_k)\right). $$
+Since $\sum_n \mathbb{P}(A_n) = \infty$, the tail $\sum_{k = m}^M \mathbb{P}(A_k) \to \infty$ as
+$M \to \infty$ (for each fixed $m$). Therefore the exponent tends to $-\infty$ and
+$$ \lim_{M \to \infty} \mathbb{P}\!\left(\bigcap_{k = m}^M A_k^c\right) \le \lim_{M \to \infty}
+\exp\!\left(-\sum_{k = m}^M \mathbb{P}(A_k)\right) = 0, $$
+that is, $\mathbb{P}(\bigcap_{k \ge m} A_k^c) = 0$. Since this holds for every $m$,
+$$ \mathbb{P}\!\left((\varlimsup A_n)^c\right) = \mathbb{P}\!\left(\bigcup_m \bigcap_{k \ge m}
+A_k^c\right) \le \sum_m \mathbb{P}\!\left(\bigcap_{k \ge m} A_k^c\right) = 0. $$
+It follows that $\mathbb{P}(\varlimsup A_n) = 1$.
+\end{proof}
+
+\begin{ejemplo}{Increasingly biased coins}{ej_monedas_sesgadas}
+Independent coins are tossed, where the $n$-th comes up heads with probability $p_n$, and let
+$E_n$ = ``the $n$-th comes up heads''.
+\begin{enumerate}
+    \item If $p_n = 1/n$: since $\sum 1/n = \infty$ and the events are independent,
+    Borel-Cantelli (II) gives that with probability $1$ \emph{infinitely many} heads come up, even though
+    $p_n \to 0$.
+    \item If $p_n = (99/100)^n$: the series $\sum (99/100)^n$ is a convergent geometric series, and
+    Borel-Cantelli (I) gives that with probability $1$ only \emph{finitely many} heads come up, even though the
+    first coins come up heads almost always.
+\end{enumerate}
+\end{ejemplo}
+
+\begin{ejemplo}{The monkey and Borges}{ej_mono}
+A monkey types at random, with equiprobable and independent keys, on a keyboard of $60$
+symbols. Fix a work of $N$ characters (say, a short story by Borges). The claim is: with
+probability $1$, the monkey types it, and not once but \emph{infinitely many} times.
+
+Consider the disjoint blocks of $N$ consecutive keystrokes (the $k$-th block occupies the
+positions $(k-1)N + 1, \dots, kN$) and let $S_k$ be the event ``the $k$-th block coincides
+character by character with the work''. The $S_k$ depend on disjoint keystrokes, so that they are
+independent, and each one has probability $p = (1/60)^N$: tiny, but positive and the
+same for every $k$. Then
+$$ \sum_{k=1}^\infty \mathbb{P}(S_k) = \sum_{k=1}^\infty \frac{1}{60^N} = \infty, $$
+and Borel-Cantelli (II) gives $\mathbb{P}(\varlimsup_k S_k) = 1$: infinitely many blocks reproduce the
+complete work.
+\end{ejemplo}
+
+\obs The example illustrates the typical use of Borel-Cantelli (II): to conclude ``infinitely
+often'' the events need not be likely; it suffices that they be independent and that
+the series of their probabilities diverge, which a constant positive probability guarantees.
+
+\obs Combining both directions: if the $(A_n)$ are \emph{independent}, then
+$$ \mathbb{P}(\varlimsup A_n) = \begin{cases} 0, & \text{if } \sum \mathbb{P}(A_n) < \infty, \\
+1, & \text{if } \sum \mathbb{P}(A_n) = \infty. \end{cases} $$
+That is, under independence the event $\{A_n \text{ infinitely often}\}$ always has
+probability $0$ or $1$. This dichotomy is a particular case of a much more
+general phenomenon: Kolmogorov's $0$-$1$ law.
+
+\subsection{Kolmogorov's 0-1 law}
+
+\begin{definicion}{Tail $\sigma$-algebra}{sigma_cola}
+Let $(\Omega, \mathcal{F}, \mathbb{P})$ be a probability space and $(A_n)_{n \in \mathbb{N}}
+\subset \mathcal{F}$. The \emph{tail $\sigma$-algebra} of the sequence $(A_n)$ is
+$$ \mathcal{T} = \bigcap_{n=1}^\infty \sigma(A_n, A_{n+1}, A_{n+2}, \dots), $$
+where $\sigma(A_n, A_{n+1}, \dots)$ is the $\sigma$-algebra generated by the sequence from
+index $n$ on. Its elements are called \emph{tail events}: they are the ones that do not depend on
+any finite number of the $A_k$.
+\end{definicion}
+
+\obs Examples of tail events: $\varlimsup_n A_n$ and $\varliminf_n A_n$ (both are in
+$\sigma(A_n, A_{n+1}, \dots)$ for every $n$, by their very definition). The event ``the sequence
+$\mathbf{1}_{A_n}$ converges'' is also a tail event. On the other hand, $A_1$ by itself is not.
+
+\begin{teorema}{Kolmogorov's 0-1 law}{kolmogorov_01}
+Let $(\Omega, \mathcal{F}, \mathbb{P})$ be a probability space and $(A_n)_{n \in \mathbb{N}}
+\subset \mathcal{F}$ an \emph{independent} sequence. If $B \in \mathcal{T}$ is a tail
+event, then
+$$ \mathbb{P}(B) \in \{0, 1\}. $$
+\end{teorema}
+
+\begin{proof}
+The strategy is to prove that $B$ is independent of itself, which forces $\mathbb{P}(B) =
+\mathbb{P}(B \cap B) = \mathbb{P}(B)^2$ and therefore $\mathbb{P}(B) \in \{0, 1\}$.
+
+The following criterion for independence of generated $\sigma$-algebras is used; it is a consequence of
+Dynkin's $\pi$-$\lambda$ theorem, and its proof is omitted: \emph{if two families of events
+$\mathcal{C}_1, \mathcal{C}_2$ are closed under finite intersections and every pair $C_1 \in
+\mathcal{C}_1$, $C_2 \in \mathcal{C}_2$ is independent, then $\sigma(\mathcal{C}_1)$ and
+$\sigma(\mathcal{C}_2)$ are independent} (every pair of elements, one from each, is).
+
+\textit{$\mathcal{T}$ is independent of $\sigma(A_1, \dots, A_n)$, for each $n$.} Let
+$\mathcal{C}_1$ be the family of finite intersections of sets $A_i$ with $i \le n$, and
+$\mathcal{C}_2$ that of finite intersections of sets $A_j$ with $j > n$. Both are
+closed under finite intersections, and every pair of elements from one and the other is independent
+because the sequence $(A_n)$ is (the indices involved are all distinct). By the
+criterion, $\sigma(A_1, \dots, A_n)$ and $\sigma(A_{n+1}, A_{n+2}, \dots)$ are independent; since
+$\mathcal{T} \subseteq \sigma(A_{n+1}, A_{n+2}, \dots)$, in particular $\mathcal{T}$ is
+independent of $\sigma(A_1, \dots, A_n)$.
+
+\textit{$\mathcal{T}$ is independent of $\sigma(A_1, A_2, \dots)$.} Let $\mathcal{C} =
+\bigcup_n \sigma(A_1, \dots, A_n)$. This family is closed under finite intersections (two
+of its elements coexist in some $\sigma(A_1, \dots, A_n)$ with $n$ sufficiently large),
+each of its elements is independent of each element of $\mathcal{T}$ by the previous step, and
+$\sigma(\mathcal{C}) = \sigma(A_1, A_2, \dots)$. Applying the criterion again (with
+$\mathcal{C}$ and $\mathcal{T}$, which is closed under intersections because it is a $\sigma$-algebra),
+the independence of $\sigma(A_1, A_2, \dots)$ and $\mathcal{T}$ is obtained.
+
+\textit{Conclusion.} Let $B \in \mathcal{T}$. Also $B \in \sigma(A_1, A_2, \dots)$, since
+$\mathcal{T} \subseteq \sigma(A_1, A_2, \dots)$. The independence just proved, applied to the
+pair $(B, B)$, gives
+$$ \mathbb{P}(B) = \mathbb{P}(B \cap B) = \mathbb{P}(B) \cdot \mathbb{P}(B), $$
+whence $\mathbb{P}(B)(1 - \mathbb{P}(B)) = 0$ and $\mathbb{P}(B) \in \{0, 1\}$.
+\end{proof}
+
+\obs The law does not say \emph{which} of the two values $\mathbb{P}(B)$ takes, and deciding it can be
+difficult. For the tail event $\varlimsup_n A_n$, the Borel-Cantelli lemmas are the
+effective criterion.
+
+\newpage
+
+\section{Generating measures}
+
+\subsection{Outer measure}
+
+\begin{definicion}{Outer measure}{medida_exterior}
+A function $\mu^*: \mathcal{P}(X) \to [0, \infty]$ is an \emph{outer measure} if:
+\begin{enumerate}
+    \item $\mu^*(\emptyset) = 0$.
+    \item Monotonicity: $A \subseteq B \implies \mu^*(A) \le \mu^*(B)$.
+    \item Sub-$\sigma$-additivity: $\mu^*(\bigcup_n A_n) \le \sum_n \mu^*(A_n)$ for any
+    $(A_n) \subseteq \mathcal{P}(X)$.
+\end{enumerate}
+\end{definicion}
+
+\obs \emph{Typical construction of an outer measure.} Given a function $\ell:
+\mathcal{C} \to [0, \infty]$ defined on a family $\mathcal{C} \subseteq \mathcal{P}(X)$
+with $\emptyset \in \mathcal{C}$ and $\ell(\emptyset) = 0$, define
+$$ \mu^*(E) = \inf\left\{ \sum_{n=1}^\infty \ell(I_n) : (I_n) \subset \mathcal{C}, \ E \subseteq
+\bigcup_n I_n \right\}, $$
+with $\mu^*(E) = +\infty$ if $E$ admits no cover. Then $\mu^*$ is an outer measure
+.
+
+\subsection{Carathéodory's criterion}
+
+\begin{definicion}{$\mu^*$-measurable sets}{caratheodory_mide}
+$A \subseteq X$ is \emph{$\mu^*$-measurable} (in the sense of Carathéodory) if for every
+$E \subseteq X$:
+$$ \mu^*(E) = \mu^*(E \cap A) + \mu^*(E \cap A^c). $$
+\end{definicion}
+
+\begin{teorema}{Carathéodory}{caratheodory}
+Let $\mu^*$ be an outer measure on $X$, and let
+$$ \mathcal{A}^* = \{ A \subseteq X : A \text{ is } \mu^*\text{-measurable} \}. $$
+Then $\mathcal{A}^*$ is a $\sigma$-algebra and $\mu = \mu^*|_{\mathcal{A}^*}$ is a measure.
+\end{teorema}
+
+\begin{proof}\leavevmode\\
+For every $A \subseteq X$ and every $E \subseteq X$, subadditivity gives $\mu^*(E) = \mu^*((E \cap A) \cup (E \cap A^c)) \le \mu^*(E \cap A) + \mu^*(E \cap A^c)$. Therefore, to see that a set is in $\mathcal{A}^*$ it suffices to prove the opposite inequality.
+
+\textit{Step 1: $\mathcal{A}^*$ is an algebra.} The empty set is in $\mathcal{A}^*$, since $\mu^*(E \cap \emptyset) + \mu^*(E \cap X) = 0 + \mu^*(E) = \mu^*(E)$ for every $E$. Closure under complements follows from the fact that Carathéodory's condition is symmetric in $A$ and $A^c$. For closure under finite unions, let $A, B \in \mathcal{A}^*$ and $E \subseteq X$. Applying the measurability of $A$ to $E$, and then that of $B$ to $E \cap A^c$,
+\begin{align*}
+\mu^*(E) &= \mu^*(E \cap A) + \mu^*(E \cap A^c) \\
+&= \mu^*(E \cap A) + \mu^*(E \cap A^c \cap B) + \mu^*(E \cap A^c \cap B^c).
+\end{align*}
+Since $E \cap (A \cup B) = (E \cap A) \sqcup (E \cap A^c \cap B)$, subadditivity gives $\mu^*(E \cap (A \cup B)) \le \mu^*(E \cap A) + \mu^*(E \cap A^c \cap B)$. Substituting in the previous equality and using $E \cap (A \cup B)^c = E \cap A^c \cap B^c$,
+$$ \mu^*(E) \ge \mu^*(E \cap (A \cup B)) + \mu^*(E \cap (A \cup B)^c), $$
+so that $A \cup B \in \mathcal{A}^*$.
+
+\textit{Step 2: $\mathcal{A}^*$ is a $\sigma$-algebra.} Let $(A_n)_{n \in \mathbb{N}} \subseteq \mathcal{A}^*$ be a disjoint sequence and $A = \bigcup_n A_n$. Write $S_n = \bigcup_{k=1}^n A_k$. It is proved by induction on $n$ that, for every $E$,
+$$ \mu^*(E \cap S_n) = \sum_{k=1}^n \mu^*(E \cap A_k). $$
+The case $n = 1$ holds because $S_1 = A_1$. Assuming the formula for $n$, observe that $S_n \in \mathcal{A}^*$ since it is a finite union, and apply Carathéodory's condition for $A_{n+1}$ to the set $E \cap S_{n+1}$:
+$$ \mu^*(E \cap S_{n+1}) = \mu^*(E \cap S_{n+1} \cap A_{n+1}) + \mu^*(E \cap S_{n+1} \cap A_{n+1}^c). $$
+Since the $A_k$ are disjoint, $S_{n+1} \cap A_{n+1} = A_{n+1}$ and $S_{n+1} \cap A_{n+1}^c = S_n$, so that
+$$ \mu^*(E \cap S_{n+1}) = \mu^*(E \cap A_{n+1}) + \mu^*(E \cap S_n). $$
+Applying the inductive hypothesis to $\mu^*(E \cap S_n)$,
+$$ \mu^*(E \cap S_{n+1}) = \mu^*(E \cap A_{n+1}) + \sum_{k=1}^n \mu^*(E \cap A_k) = \sum_{k=1}^{n+1} \mu^*(E \cap A_k), $$
+which is the formula for $n+1$.
+
+Now, by the measurability of $S_n$,
+$$ \mu^*(E) = \mu^*(E \cap S_n) + \mu^*(E \cap S_n^c). $$
+In the first term the formula just proved is used; in the second, since $S_n \subseteq A$ gives $S_n^c \supseteq A^c$, monotonicity ensures $\mu^*(E \cap S_n^c) \ge \mu^*(E \cap A^c)$. Therefore
+$$ \mu^*(E) \ge \sum_{k=1}^n \mu^*(E \cap A_k) + \mu^*(E \cap A^c), $$
+and since this holds for every $n$, letting $n \to \infty$,
+$$ \mu^*(E) \ge \sum_{k=1}^\infty \mu^*(E \cap A_k) + \mu^*(E \cap A^c). $$
+Finally, $E \cap A = \bigcup_k (E \cap A_k)$, so that sub-$\sigma$-additivity gives $\sum_{k=1}^\infty \mu^*(E \cap A_k) \ge \mu^*(E \cap A)$, and then
+$$ \mu^*(E) \ge \mu^*(E \cap A) + \mu^*(E \cap A^c), $$
+that is, $A \in \mathcal{A}^*$. For an arbitrary countable union $(B_n) \subseteq \mathcal{A}^*$, make it disjoint: $A_1 = B_1$ and $A_n = B_n \setminus (B_1 \cup \cdots \cup B_{n-1})$ for $n \ge 2$. Since $\mathcal{A}^*$ is an algebra, each $A_n \in \mathcal{A}^*$, the $A_n$ are disjoint and $\bigcup_n B_n = \bigcup_n A_n \in \mathcal{A}^*$ by the above. Hence $\mathcal{A}^*$ is a $\sigma$-algebra.
+
+\textit{Step 3: $\mu = \mu^*|_{\mathcal{A}^*}$ is a measure.} Let $(A_n) \subseteq \mathcal{A}^*$ be disjoint and $A = \bigcup_n A_n$. Evaluate the inequality obtained in Step 2 at $E = A$. Since $A \cap A_k = A_k$ and $A \cap A^c = \emptyset$,
+$$ \mu^*(A) \ge \sum_{k=1}^\infty \mu^*(A \cap A_k) + \mu^*(A \cap A^c) = \sum_{k=1}^\infty \mu^*(A_k). $$
+The opposite inequality $\mu^*(A) \le \sum_k \mu^*(A_k)$ is sub-$\sigma$-additivity, so that $\mu(A) = \sum_n \mu(A_n)$; that is, $\mu$ is $\sigma$-additive on disjoint sequences of $\mathcal{A}^*$. Since moreover $\mu(\emptyset) = \mu^*(\emptyset) = 0$, $\mu$ is a measure.
+\end{proof}
+
+\subsection{Lebesgue measure on \texorpdfstring{$\mathbb{R}$}{R}}
+
+\begin{definicion}{Lebesgue outer measure}{lebesgue_ext}
+For $E \subseteq \mathbb{R}$, define
+$$ \lambda^*(E) = \inf\!\left\{ \sum_{n=1}^\infty (b_n - a_n) : E \subseteq \bigcup_n (a_n, b_n]
+\right\}, $$
+\end{definicion}
+
+\begin{teorema}{Lebesgue measure}{lebesgue}
+$\lambda^*$ is an outer measure. The associated Carathéodory $\sigma$-algebra, denoted
+$\mathcal{L}$, contains $\mathcal{B}(\mathbb{R})$, and the restriction $\lambda =
+\lambda^*|_{\mathcal{L}}$ is a measure (called \emph{Lebesgue measure}) that satisfies:
+\begin{enumerate}
+    \item $\lambda(a, b]) = b - a$.
+    \item $\mathcal{B}(\mathbb{R}) \subset \mathcal{L} \subsetneq \mathcal{P}(\mathbb{R})$.
+    \item $\lambda$ is translation invariant: $\lambda(A + t) = \lambda(A)$ for every $t \in
+    \mathbb{R}$ and $A \in \mathcal{L}$.
+    \item $(\mathbb{R}, \mathcal{L}, \lambda)$ is complete: if $\lambda(N) = 0$ and $A \subseteq N$,
+    then $A \in \mathcal{L}$ (and by monotonicity $\lambda(A) = 0$).
+\end{enumerate}
+\end{teorema}
+
+\begin{proof}\leavevmode\\
+(i) The inequality $\lambda^*((a, b]) \le b - a$
+is obtained by taking $(a, b]$ itself as the cover. The other inequality is proved now. Let
+$\{(a_k, b_k]\}_k$ be a countable cover of $(a, b]$. Given $\epsilon > 0$, enlarge each
+interval to an \emph{open} one $(a_k - \epsilon_k, b_k + \epsilon_k)$, choosing $\epsilon_k > 0$
+so that $\sum_k \epsilon_k < \epsilon$. Thus, $\{(a_k - \epsilon_k, b_k + \epsilon_k)\}$ is an
+open cover of the compact set $[a, b]$.
+
+By compactness, there is a finite subcover $\{(a_{k_1} - \epsilon_{k_1}, b_{k_1} +
+\epsilon_{k_1}), \dots, (a_{k_N} - \epsilon_{k_N}, b_{k_N} + \epsilon_{k_N})\}$ of $[a, b]$. The sum of the lengths
+of the intervals of the subcover is at least $b - a$:
+$$ b - a \le \sum_{j=1}^N (b_{k_j} + \epsilon_{k_j} - (a_{k_j} - \epsilon_{k_j})) = \sum_{j=1}^N
+(b_{k_j} - a_{k_j}) + 2 \sum_{j=1}^N \epsilon_{k_j} \le \sum_k (b_k - a_k) + 2\epsilon. $$
+Letting $\epsilon \to 0$ and then taking the infimum over covers, $b - a \le \lambda^*((a, b])$.
+
+(ii) It suffices to prove that each half-line
+$(c, \infty)$ is $\lambda^*$-measurable, because the half-lines generate $\mathcal{B}(\mathbb{R})$.
+Fix $c \in \mathbb{R}$ and $E \subseteq \mathbb{R}$. Given a cover $E \subseteq \bigcup_k
+(a_k, b_k]$, split each interval into its piece to the right of $c$ and its piece to the left:
+$$ (a_k, b_k] = ((a_k, b_k] \cap (c, \infty)) \sqcup ((a_k, b_k] \cap (-\infty, c]). $$
+Each piece is a half-open interval (possibly empty) and their lengths add up to exactly
+$b_k - a_k$. Applying $\lambda^*$ to the two collections of pieces, which cover
+$E \cap (c, \infty)$ and $E \cap (-\infty, c]$ respectively,
+$$ \lambda^*(E \cap (c, \infty)) + \lambda^*(E \cap (-\infty, c]) \le \sum_k (b_k - a_k). $$
+Taking the infimum over covers on the right,
+$$ \lambda^*(E \cap (c, \infty)) + \lambda^*(E \cap (c, \infty)^c) \le \lambda^*(E). $$
+The opposite inequality is subadditivity. Hence $(c, \infty)$ satisfies Carathéodory and belongs to
+$\mathcal{L}$.
+
+(iii) If $\{(a_k, b_k]\}$ covers $E$, then
+$\{(a_k + t, b_k + t]\}$ covers $E + t$ with the same sum of lengths. This gives $\lambda^*(E + t)
+\le \lambda^*(E)$, and by symmetry (applying the same to $-t$) equality. Invariance carries
+over to $\lambda^*$-measurability: if $A \in \mathcal{L}$, Carathéodory's condition
+for $A + t$ follows by applying that of $A$ to the set $E - t$.
+
+(iv) If $\lambda(N) = 0$ and $A \subseteq N$, by monotonicity $\lambda^*(A)
+= 0$. For any $E$, $\lambda^*(E \cap A) \le \lambda^*(A) = 0$, so that Carathéodory's
+condition for $A$ reduces to $\lambda^*(E) = \lambda^*(E \cap A^c)$, which holds by
+subadditivity and monotonicity. Hence $A \in \mathcal{L}$.
+
+(v) For $\mathcal{L} \subsetneq \mathcal{P}(\mathbb{R})$, the Vitali
+sets cannot be Lebesgue-measurable because $\lambda$ satisfies the
+three properties in the conclusion of the theorem.
+\end{proof}
+
+\obs There are Lebesgue-null sets with the cardinality of the continuum (Cantor), as well as
+nowhere dense sets of positive measure (fat Cantor).
+
+\obs Every countable set has Lebesgue measure zero: for each point,
+$\lambda(\{x\}) \le \lambda((x - \epsilon, x]) = \epsilon$ for every $\epsilon > 0$, whence
+$\lambda(\{x\}) = 0$, and by $\sigma$-additivity
+$$ \lambda(\mathbb{Q}) = \sum_{q \in \mathbb{Q}} \lambda(\{q\}) = 0. $$
+Thus, the function $\mathbf{1}_{\mathbb{Q} \cap [0,1]}$ from the motivation, which was not
+Riemann-integrable, is zero except on a set of measure zero: its Lebesgue integral
+will be $0$.
+
+\subsection{Lebesgue-Stieltjes}
+
+\begin{definicion}{Lebesgue-Stieltjes outer measure}{lebesgue_stieltjes_ext}
+Let $F: \mathbb{R} \to \mathbb{R}$ be nondecreasing and right-continuous. For $E \subseteq
+\mathbb{R}$,
+$$ \lambda_F^*(E) = \inf\!\left\{ \sum_{n=1}^\infty (F(b_n) - F(a_n)) : E \subseteq \bigcup_n
+(a_n, b_n] \right\}. $$
+\end{definicion}
+
+\begin{teorema}{Lebesgue-Stieltjes measure}{lebesgue_stieltjes}
+Let $F$ be as above. Then $\lambda_F^*$ is an outer measure, and the Carathéodory
+$\sigma$-algebra $\mathcal{L}_F$ contains $\mathcal{B}(\mathbb{R})$. The restriction $\lambda_F =
+\lambda_F^*|_{\mathcal{L}_F}$ is the \emph{Lebesgue-Stieltjes measure} of $F$, and it satisfies
+$$ \lambda_F((a, b]) = F(b) - F(a) \qquad \forall a < b. $$
+\end{teorema}
+
+\begin{proof}
+The identity $\lambda_F((a, b]) = F(b) - F(a)$ uses, in the compactness step, that
+$F$ is right-continuous: to show
+$F(b) - F(a) \le \sum_k (F(b_k) - F(a_k))$ when $\{(a_k, b_k]\}$ covers $(a, b]$, the
+intervals are widened to $(a_k, b_k + \delta_k]$ with $F(b_k + \delta_k) - F(b_k) < \epsilon/2^k$
+ and $[a + \delta, b]$ is compactified as for Lebesgue.
+The $\lambda_F^*$-measurability of the half-lines and completeness follow exactly in the same way.
+\end{proof}
+
+\obs When $F$ is the
+distribution function of a random variable $X$, $\lambda_F$ is the
+distribution of $X$, denoted $P_X$, and $P_X(B) = P(X \in B)$ for every Borel set $B$.
+
+\newpage
+
+\section{Measurable functions}
+
+\begin{definicion}{Measurable function}{medible}
+Let $(X, \mathcal{A}, \mu)$ be a measure space. A function $f: X \to \mathbb{R}$ is
+\emph{measurable} if for every $a \in \mathbb{R}$,
+$$ f^{-1}((a, \infty)) = \{ x \in X : f(x) > a \} \in \mathcal{A}. $$
+\end{definicion}
+
+\obs In probability, a measurable function is called a \emph{random variable}.
+
+\obs The definition points directly at the Lebesgue integral: to approximate $\int f$
+by partitioning the \emph{range} into values $a_0 < a_1 < \cdots < a_n$, one must measure the sets
+$$ A_k = \{a_{k-1} < f \le a_k\} = \{f > a_{k-1}\} \setminus \{f > a_k\}. $$
+Requiring $\{f > a\} \in \mathcal{A}$ for every $a$ is exactly what guarantees that those
+sets have a measure.
+
+\begin{proposicion}{Equivalent characterizations of measurability}{caract_medible}
+Let $(X, \mathcal{A})$ be a measurable space and $f: X \to \mathbb{R}$. The following conditions are
+equivalent:
+\begin{enumerate}
+    \item $\{f > a\} \in \mathcal{A}$ for every $a \in \mathbb{R}$.
+    \item $\{f \ge a\} \in \mathcal{A}$ for every $a \in \mathbb{R}$.
+    \item $\{f < a\} \in \mathcal{A}$ for every $a \in \mathbb{R}$.
+    \item $\{f \le a\} \in \mathcal{A}$ for every $a \in \mathbb{R}$.
+\end{enumerate}
+\end{proposicion}
+
+\begin{proof}\leavevmode\\
+(i) $\Leftrightarrow$ (iv), (ii) $\Leftrightarrow$ (iii) and (i) $\Leftrightarrow$ (ii) are proved.
+
+\textit{(i) $\Leftrightarrow$ (iv).} $\{f \le a\} = \{f > a\}^c$, and $\mathcal{A}$ is closed under
+complements.
+
+\textit{(ii) $\Leftrightarrow$ (iii).} $\{f < a\} = \{f \ge a\}^c$.
+
+\textit{(i) $\Rightarrow$ (ii).} $\{f \ge a\} = \bigcap_{n=1}^\infty \{f > a - 1/n\}$,
+a countable
+intersection of elements of $\mathcal{A}$.
+
+\textit{(ii) $\Rightarrow$ (i).} $\{f > a\} = \bigcup_{n=1}^\infty \{f \ge a + 1/n\}$, a countable
+union of elements of $\mathcal{A}$.
+
+With this, (i)--(iv) are equivalent.
+\end{proof}
+
+\subsection{Examples and operations}
+
+\begin{ejemplo}{Constant functions}{}
+If $f \equiv c$, then $\{f > a\}$ equals $X$ if $c > a$ and $\emptyset$ if $c \le a$. Since
+$X, \emptyset \in \mathcal{A}$, $f$ is measurable.
+\end{ejemplo}
+
+\begin{ejemplo}{Characteristic functions}{}
+Let $A \in \mathcal{A}$. The characteristic function $\mathbf{1}_A$ is measurable:
+$$ \{\mathbf{1}_A > a\} = \begin{cases} X, & a < 0, \\ A, & 0 \le a < 1, \\ \emptyset,
+& a \ge 1, \end{cases} $$
+and the three sets are in $\mathcal{A}$.
+\end{ejemplo}
+
+\begin{teorema}{Continuous functions are Borel-measurable}{continuas_borel}
+Every continuous function $f: \mathbb{R} \to \mathbb{R}$ is Borel-measurable.
+\end{teorema}
+
+\begin{proof}
+It must be seen that $f^{-1}((a, \infty)) \in \mathcal{B}(\mathbb{R})$ for every $a \in \mathbb{R}$.
+Since $(a, \infty)$ is open and $f$ continuous, $f^{-1}((a, \infty))$ is open in $\mathbb{R}$, and
+every open set belongs to $\mathcal{B}(\mathbb{R})$.
+
+More generally, the preimage under a continuous function of any open set is open, which gives
+$f^{-1}(\mathcal{B}(\mathbb{R})) \subseteq \mathcal{B}(\mathbb{R})$: the set $\{B \subseteq
+\mathbb{R} : f^{-1}(B) \in \mathcal{B}(\mathbb{R})\}$ is a $\sigma$-algebra containing the
+open sets, so that it contains $\mathcal{B}(\mathbb{R})$.
+\end{proof}
+
+\begin{teorema}{Monotone functions are Borel-measurable}{monotonas_borel}
+Every monotone function $f: \mathbb{R} \to \mathbb{R}$ is Borel-measurable.
+\end{teorema}
+
+\begin{proof}
+Suppose $f$ nondecreasing (the nonincreasing case follows by applying what follows to $-f$). With
+$a \in \mathbb{R}$ fixed, consider the set
+$E_a = f^{-1}((a, \infty)) = \{x \in \mathbb{R} : f(x) > a\}$.
+
+If $x \in E_a$ and $y > x$, monotonicity gives $f(y) \ge f(x) > a$, so that $y \in E_a$.
+Therefore $E_a$ is a half-line to the right: denoting $c = \inf E_a$ (with the convention
+$\inf \emptyset = +\infty$, and $\inf$ of a set not bounded below $= -\infty$), then
+$$ E_a = (c, \infty) \quad \text{or} \quad E_a = [c, \infty), $$
+according to whether the infimum is attained or not. In either case, $E_a \in
+\mathcal{B}(\mathbb{R})$ (open and closed half-lines are Borel sets).
+\end{proof}
+
+\begin{ejemplo}{Simple functions}{}
+A function $\varphi: X \to \mathbb{R}$ is \emph{simple} if it is a finite linear combination of
+characteristic functions:
+$$ \varphi = \sum_{i=1}^n c_i \, \mathbf{1}_{A_i}, \qquad c_i \in \mathbb{R}, \ A_i \in \mathcal{A}.
+$$
+Equivalently, $\varphi$ takes only finitely many values and the preimage of each one is in
+$\mathcal{A}$. Simple functions are measurable because each $\mathbf{1}_{A_i}$ is and the operations of
+sum and product by a scalar preserve measurability (Theorem \ref{teo:operaciones_medibles}).
+\end{ejemplo}
+
+\begin{ejemplo}{Canonical representation of a simple function}{ej_repr_canonica}
+Writing a simple function as a combination of characteristic functions is not unique. With intervals of
+$\mathbb{R}$, consider
+$$ \varphi = 2 \cdot \mathbf{1}_{[0,2]} + 3 \cdot \mathbf{1}_{[1,5]}. $$
+The two intervals overlap on $[1,2]$, where $\varphi$ equals $2 + 3 = 5$. Separating according to
+the values that $\varphi$ takes,
+$$ \varphi = 2 \cdot \mathbf{1}_{[0,1)} + 5 \cdot \mathbf{1}_{[1,2]} + 3 \cdot \mathbf{1}_{(2,5]},
+$$
+which is the \emph{canonical representation}: the coefficients are the distinct nonzero values
+of $\varphi$, and the sets $\{\varphi = 2\} = [0,1)$, $\{\varphi = 5\} = [1,2]$ and
+$\{\varphi = 3\} = (2,5]$ are disjoint. Every simple function admits a unique representation of this
+form, which is the one used by the definition of the integral.
+\end{ejemplo}
+
+\begin{teorema}{Operations with measurable functions}{operaciones_medibles}
+Let $f, g: X \to \mathbb{R}$ be measurable and $c \in \mathbb{R}$. Then $cf$, $f + g$, $f \cdot g$,
+$\max(f, g)$, $\min(f, g)$, $|f|$, $f^+ := \max(f, 0)$ and $f^- := \max(-f, 0)$ are measurable.
+\end{teorema}
+
+\begin{proof}\leavevmode\\
+By Proposition \ref{prop:caract_medible}, to see that a function is measurable it suffices to
+verify any of the conditions $\{f > a\}, \{f \ge a\}, \{f < a\}, \{f \le a\} \in
+\mathcal{A}$ for every $a \in \mathbb{R}$; in each case the most convenient one is chosen.
+
+\textit{Product by a scalar.}
+\begin{itemize}
+    \item If $c = 0$, $cf \equiv 0$, which is constant and therefore measurable.
+    \item If $c > 0$, $cf(x) > a \Leftrightarrow f(x) > a/c$, so that
+    $\{cf > a\} = \{f > a/c\} \in \mathcal{A}$.
+    \item If $c < 0$, $cf(x) > a \Leftrightarrow f(x) < a/c$, so that 
+    $\{cf > a\} = \{f < a/c\} \in \mathcal{A}$.
+\end{itemize}
+
+\textit{Maximum and minimum.} Since
+$$ \max(f, g)(x) > a \ \Leftrightarrow \ f(x) > a \ \text{ or } \ g(x) > a, $$
+one has $\{\max(f, g) > a\} = \{f > a\} \cup \{g > a\} \in \mathcal{A}$, being a finite union
+of measurable sets. Analogously,
+$$ \min(f, g)(x) \ge a \ \Leftrightarrow \ f(x) \ge a \ \text{ and } \ g(x) \ge a, $$
+so that $\{\min(f, g) \ge a\} = \{f \ge a\} \cap \{g \ge a\} \in \mathcal{A}$.
+
+\textit{Absolute value.} For $a < 0$, $\{|f| > a\} = X \in \mathcal{A}$. For $a \ge 0$,
+$$ |f(x)| > a \ \Leftrightarrow \ f(x) > a \ \text{ or } \ f(x) < -a, $$
+so that $\{|f| > a\} = \{f > a\} \cup \{f < -a\} \in \mathcal{A}$.
+
+\textit{Positive and negative parts $f^+, f^-$.} The constant function $0$ is measurable, and by the
+case of the maximum applied to $f$ and $0$ (or to $-f$ and $0$, using the case of product by a scalar with
+$c = -1$),
+$$ f^+ = \max(f, 0), \qquad f^- = \max(-f, 0), $$
+are measurable. Moreover the identities $f = f^+ - f^-$ and $|f| = f^+ + f^-$ hold.
+
+\textit{Sum.} It is shown that for every $a \in \mathbb{R}$,
+$$ \{f + g > a\} = \bigcup_{r \in \mathbb{Q}} \left( \{f > r\} \cap \{g > a - r\} \right). $$
+\begin{itemize}
+    \item ($\subseteq$) Let $x$ be such that $f(x) + g(x) > a$, that is $f(x) > a - g(x)$. By density of
+    $\mathbb{Q}$ in $\mathbb{R}$, there is $r \in \mathbb{Q}$ with
+    $$ a - g(x) < r < f(x). $$
+    From $r < f(x)$ one gets $x \in \{f > r\}$, and from $a - g(x) < r$ one gets $g(x) > a - r$, that is $x \in
+    \{g > a - r\}$.
+
+    \item ($\supseteq$) Let $r \in \mathbb{Q}$ with $f(x) > r$ and $g(x) > a - r$. Adding, $f(x) +
+    g(x) > r + (a - r) = a$, that is $x \in \{f + g > a\}$.
+\end{itemize}
+The right-hand side is a \emph{countable} union of
+finite intersections of sets in $\mathcal{A}$, and therefore belongs to $\mathcal{A}$.
+
+\textit{Square.} For $a < 0$, $\{f^2 > a\} = X \in \mathcal{A}$. For $a \ge 0$,
+$$ f(x)^2 > a \ \Leftrightarrow \ |f(x)| > \sqrt{a} \ \Leftrightarrow \ f(x) > \sqrt{a} \ \text{ or }
+\ f(x) < -\sqrt{a}, $$
+and therefore $\{f^2 > a\} = \{f > \sqrt{a}\} \cup \{f < -\sqrt{a}\} \in \mathcal{A}$.
+
+\textit{Product.} The polarization identity is used:
+$$ fg = \tfrac{1}{4} \left[ (f + g)^2 - (f - g)^2 \right]. $$
+By the previous steps, $f + g$ and $f - g = f + (-1) g$ are measurable.
+Their squares $(f + g)^2$ and $(f - g)^2$ are measurable by the previous case. Applying sum and
+product by a scalar once more,
+$$ fg = \tfrac{1}{4}(f + g)^2 + \left(-\tfrac{1}{4}\right)(f - g)^2 \in \mathcal{A}, $$
+that is, $fg$ is measurable.
+\end{proof}
+
+\obs The positive and negative parts satisfy, in addition to $f = f^+ - f^-$ and $|f| = f^+ + f^-$,
+the inverse formulas
+$$ f^+ = \tfrac{1}{2}(|f| + f), \qquad f^- = \tfrac{1}{2}(|f| - f), $$
+with $f^+, f^- \ge 0$ of disjoint supports. The decomposition $f = f^+ - f^-$ is what reduces
+the integral of a general function to that of two nonnegative ones.
+
+\subsection{Sup, inf, lim sup, lim inf}
+
+\begin{teorema}{Sup and inf of measurable functions}{sup_inf_medibles}
+If $(f_n)$ is a sequence of measurable functions, then $\sup_n f_n$, $\inf_n f_n$,
+$\varlimsup_n f_n$ and $\varliminf_n f_n$ are measurable.
+\end{teorema}
+
+\begin{proof}\leavevmode\\
+\textit{Case of the supremum.} For every $a \in \mathbb{R}$,
+$$ \sup_n f_n(x) > a \ \Leftrightarrow \ \exists \, n \in \mathbb{N} : f_n(x) > a, $$
+whence
+$$ \{\sup_n f_n > a\} = \bigcup_{n \in \mathbb{N}} \{f_n > a\}. $$
+Each $\{f_n > a\} \in \mathcal{A}$ by measurability of $f_n$, and the union is countable, so that
+$\{\sup_n f_n > a\} \in \mathcal{A}$ for every $a$.
+
+\textit{Case of the infimum.} Analogously,
+$$ \inf_n f_n(x) < a \ \Leftrightarrow \ \exists \, n \in \mathbb{N} : f_n(x) < a, $$
+so that $\{\inf_n f_n < a\} = \bigcup_n \{f_n < a\} \in \mathcal{A}$.
+
+\textit{Limit superior.} By definition,
+$$ \varlimsup_n f_n = \inf_{m \in \mathbb{N}} \sup_{n \ge m} f_n. $$
+For each $m$, the sequence $(f_n)_{n \ge m}$ is measurable, so that $g_m := \sup_{n \ge m} f_n$
+is measurable by the case of the sup. The sequence $(g_m)_m$ is then measurable, and
+$\varlimsup_n f_n = \inf_m g_m$ is measurable by the case of the inf.
+
+\textit{Limit inferior.} Analogous, exchanging $\sup$ with $\inf$: $\varliminf_n f_n =
+\sup_m \inf_{n \ge m} f_n$, where $\inf_{n \ge m} f_n$ is measurable by the case of the inf and then the
+sup over $m$ by the case of the sup.
+\end{proof}
+
+\obs The four operations $\sup, \inf, \varlimsup, \varliminf$ may yield functions with values
+in $[-\infty, +\infty]$. The definition of measurability extends without problems:
+$f: X \to [-\infty,
++\infty]$ is measurable if $\{f > a\} \in \mathcal{A}$ for every $a \in \mathbb{R}$.
+
+\begin{corolario}{Pointwise limit of measurable functions is measurable}{lim_medibles}
+Let $(f_n)$ be a sequence of measurable functions.
+\begin{enumerate}
+    \item If $f_n \to f$ pointwise on all of $X$, $f$ is measurable.
+    \item If the series $g := \sum_{k=1}^\infty f_k$ converges pointwise, $g$ is measurable.
+\end{enumerate}
+\end{corolario}
+
+\begin{proof}\leavevmode\\
+\textit{(i)} If $f_n \to f$ pointwise, $f = \varlimsup_n f_n = \varliminf_n f_n$, and by the
+previous theorem both are measurable. Hence $f$ is measurable.
+
+\textit{(ii)} The partial sums $g_n = \sum_{k=1}^n f_k$ are finite sums of measurable functions, and by
+Theorem \ref{teo:operaciones_medibles} they are measurable. Since $g = \lim_n g_n$ pointwise (by
+hypothesis), by (i) $g$ is measurable.
+\end{proof}
+
+\subsection{Approximation by simple functions}
+
+\begin{teorema}{Approximation by simple functions}{aprox_simples}
+Let $f: X \to \mathbb{R}$ be measurable and nonnegative. There is a sequence $(\varphi_n)$ of nonnegative
+simple functions such that $\varphi_n \nearrow f$ pointwise. If moreover $f$ is bounded, the
+convergence is uniform.
+\end{teorema}
+
+\begin{proof}\leavevmode\\
+The idea is to discretize the \emph{values} of $f$. For $n \in \mathbb{N}$ and $0 \le k \le n 2^n - 1$,
+write $I_{n,k} = [k/2^n, (k+1)/2^n)$ and define
+$$ \varphi_n(x) = \begin{cases}
+\dfrac{k}{2^n}, & \text{if } f(x) \in I_{n,k}, \\
+n, & \text{if } f(x) \ge n.
+\end{cases} $$
+
+The intervals $I_{n,0}, \dots, I_{n, n2^n - 1}$ together with $[n, \infty)$ form a partition of
+$[0, \infty)$, so that $\varphi_n$ is well defined and takes at most $n 2^n + 1$ values.
+Its level sets are the preimages $\{\varphi_n = k/2^n\} = f^{-1}(I_{n,k})$ and
+$\{\varphi_n = n\} = f^{-1}([n, \infty))$, measurable because $f$ is; hence $\varphi_n$ is simple. On
+the other hand, $\varphi_n(x) \le f(x)$ in each case ($k/2^n \le f(x)$ when $f(x) \in I_{n,k}$, and
+$n \le f(x)$ when $f(x) \ge n$), so that $0 \le \varphi_n \le f$.
+
+It is shown that $\varphi_n \le \varphi_{n+1}$ pointwise. Since $I_{n,k} = I_{n+1, 2k} \sqcup
+I_{n+1, 2k+1}$, if $f(x) \in I_{n,k}$ with $k \le n 2^n - 1$ then $f(x)$ belongs to one of those
+two intervals, on which $\varphi_{n+1}(x)$ equals $2k/2^{n+1} = k/2^n$ or
+$(2k+1)/2^{n+1} > k/2^n$; in both cases $\varphi_{n+1}(x) \ge k/2^n = \varphi_n(x)$. If instead
+$f(x) \ge n$, then $\varphi_n(x) = n$ and $\varphi_{n+1}(x) \ge n$: it equals $n+1$ if $f(x) \ge n+1$,
+and if $n \le f(x) < n+1$ there is $k$ with $f(x) \in I_{n+1,k}$ and $k/2^{n+1} \ge n$, whence
+$\varphi_{n+1}(x) = k/2^{n+1} \ge n$. In all cases $\varphi_{n+1}(x) \ge \varphi_n(x)$.
+
+Now let $x$ be such that $f(x) < \infty$ and take $n > f(x)$. Then $f(x) < n$, so that
+$f(x) \in I_{n,k}$ for some $k$ and, by definition of $I_{n,k}$,
+$$ 0 \le f(x) - \varphi_n(x) = f(x) - \frac{k}{2^n} < \frac{1}{2^n}. $$
+Since $2^{-n} \to 0$, one obtains $\varphi_n(x) \to f(x)$.
+
+Finally, if $f \le M$, for every $n > M$ one has $f(x) < n$ whatever $x$ is, so that the
+bound $0 \le f(x) - \varphi_n(x) < 2^{-n}$ holds uniformly in $x$. Since $2^{-n} \to 0$, the
+convergence is uniform.
+\end{proof}
+
+\newpage
+
+\section{Convergence of measurable functions}
+
+\begin{definicion}{Convergence almost everywhere}{conv_ctp}
+$f_n \to f$ \emph{almost everywhere} (a.e.) if there is $N \in \mathcal{A}$ with
+$\mu(N) = 0$ such that $f_n(x) \to f(x)$ for every $x \notin N$.
+\end{definicion}
+
+\begin{definicion}{Convergence in measure}{conv_medida}
+$f_n \to f$ \emph{in measure} if for every $\epsilon > 0$,
+$$ \mu(\{x : |f_n(x) - f(x)| \ge \epsilon\}) \xrightarrow{n \to \infty} 0. $$
+\end{definicion}
+
+\begin{definicion}{Almost uniform convergence}{conv_casi_unif}
+$f_n \to f$ \emph{almost uniformly} if for every $\delta > 0$ there is $N \in \mathcal{A}$ with
+$\mu(N) < \delta$ such that $f_n \to f$ uniformly on $N^c$.
+\end{definicion}
+
+\begin{corolario}{A.e. limit of measurable functions}{lim_ctp_medible}
+If $\mathcal{A}$ is complete with respect to $\mu$, the $f_n$ are measurable and $f_n \to f$ a.e.,
+then $f$ is measurable.
+\end{corolario}
+
+\begin{proof}
+There is $N \in \mathcal{A}$ with $\mu(N) = 0$ such that $f_n(x) \to f(x)$ for every $x \notin N$. Let
+$\tilde f = \varlimsup_n f_n$, measurable by Theorem \ref{teo:sup_inf_medibles}; on $N^c$ the
+sequence converges, so that $f = \tilde f$ on $N^c$. With $a \in \mathbb{R}$ fixed, decompose
+$$ \{f > a\} = \big(\{f > a\} \cap N^c\big) \cup \big(\{f > a\} \cap N\big). $$
+The first set coincides with $\{\tilde f > a\} \cap N^c$, an intersection of two measurable sets. The
+second satisfies $\{f > a\} \cap N \subseteq N$, and since $\mathcal{A}$ is complete, every subset
+of a $\mu$-null set is measurable. Therefore $\{f > a\}$ is a union of two measurable sets, and $f$ is
+measurable.
+\end{proof}
+
+\obs Without completeness of $\mathcal{A}$, a.e. convergence does not guarantee measurability: if
+$\mu(N) = 0$ but $N$ contains non-measurable subsets, redefining $f$ arbitrarily on $N$
+can break measurability.
+
+\obs In general, in any measure space the implications
+$$ \text{uniform} \implies \text{pointwise} \implies \text{a.e.}, \qquad
+   \text{almost uniform} \implies \text{in measure}, $$
+hold, and almost uniform convergence also implies a.e. convergence.
+But \emph{no} other implication holds automatically. Typical examples:
+\begin{itemize}
+    \item $f_n = \mathbf{1}_{[n, n+1]}$ on $\mathbb{R}$ converges pointwise
+     to 0, but \emph{not} in measure.
+    \item The functions $\mathbf{1}_{[0,1]}, \mathbf{1}_{[0,1/2]},
+    \mathbf{1}_{[1/2,1]}, \mathbf{1}_{[0,1/4]}, \dots$ converge to 0 in measure but \emph{not}
+    pointwise at any point.
+    \item $f_n(x) = x^n$ on $([0, 1], \lambda)$ converges pointwise to $\mathbf{1}_{\{1\}}$
+    but \emph{not} uniformly: given $0 < \epsilon < 1$ and $x < 1$, the condition
+    $x^n < \epsilon$ requires $n > \ln \epsilon / \ln x$, a bound that blows up as $x \to 1^-$, so
+    that no $n_0$ works for all $x$ at once (observe moreover that the pointwise
+    limit is not continuous even though each $f_n$ is). It does converge \emph{almost uniformly} to
+    $\mathbf{1}_{\{1\}}$: given $\delta > 0$ it suffices to exclude $N = (1 - \delta, 1)$, and on
+    $[0, 1 - \delta]$ the convergence to $0$ is uniform because $x^n \le (1 - \delta)^n \to 0$.
+\end{itemize}
+
+\subsection{Egoroff's theorem}
+
+\begin{teorema}{Egoroff}{egoroff}
+Let $(X, \mathcal{A}, \mu)$ be a finite measure space ($\mu(X) < \infty$) and $f_n \to f$ a.e.
+Then:
+\begin{enumerate}
+    \item $f_n \to f$ almost uniformly (Definition \ref{def:conv_casi_unif}).
+    \item As a consequence, $f_n \to f$ in measure.
+\end{enumerate}
+\end{teorema}
+
+\begin{proof}
+Fix $\delta > 0$. For each $p, m \in \mathbb{N}$, let
+$$ A_m^{(p)} = \{x \in X : |f_m(x) - f(x)| \ge 1/p\}. $$
+It is first shown that, for each $p$,
+$$ \mu\!\left(\bigcup_{k \ge m} A_k^{(p)}\right) \xrightarrow{m \to \infty} 0. $$
+Indeed, if $x \in \varlimsup_m A_m^{(p)} = \bigcap_m \bigcup_{k \ge m} A_k^{(p)}$, then for
+each $m$ there is $k \ge m$ with $|f_k(x) - f(x)| \ge 1/p$, whence $f_k(x) \not\to f(x)$.
+Therefore $\varlimsup_m A_m^{(p)} \subseteq \{x \in X : f_n(x) \not\to f(x)\}$, which is $\mu$-null by
+hypothesis. Since moreover $\big(\bigcup_{k \ge m} A_k^{(p)}\big)_m$ decreases to
+$\varlimsup_m A_m^{(p)}$ and its first term has measure $\le \mu(X) < \infty$, continuity of
+the measure gives the announced limit.
+
+(i) is proved. By what was just seen, for each $p \in
+\mathbb{N}$ one can choose $m_p$ such that $\mu\big(\bigcup_{k \ge m_p} A_k^{(p)}\big) < \delta/2^p$, and
+define
+$$ N = \bigcup_{p=1}^\infty \bigcup_{k \ge m_p} A_k^{(p)}, \qquad \text{with } \mu(N) \le
+\sum_{p=1}^\infty \frac{\delta}{2^p} = \delta. $$
+If $x \in N^c$, then $|f_k(x) - f(x)| < 1/p$ for every $p \in \mathbb{N}$ and every $k \ge m_p$.
+Thus, given $\epsilon > 0$ and choosing $p$ with $1/p < \epsilon$, one gets $|f_k(x) - f(x)| < \epsilon$
+for every $k \ge m_p$ and every $x \in N^c$. Since $m_p$ does not depend on $x$, the convergence is uniform
+on $N^c$.
+
+Finally, (ii) follows from (i): given $\epsilon > 0$ and $\eta > 0$, by almost uniform
+convergence there are $N$ with $\mu(N) < \eta$ and $m_0 \in \mathbb{N}$ such that $|f_m - f| < \epsilon$ on
+$N^c$ for every $m \ge m_0$. Then $\{|f_m - f| \ge \epsilon\} \subseteq N$ for $m \ge m_0$,
+whence $\mu(\{|f_m - f| \ge \epsilon\}) \le \mu(N) < \eta$. Since $\eta$ is arbitrary,
+$\mu(\{|f_m - f| \ge \epsilon\}) \to 0$; that is, $f_m \to f$ in measure.
+\end{proof}
+
+\obs The $m_p$ that defines $N$ depends on $p$ but \emph{not} on $x$.
+
+\newpage
+
+\section{Integration}
+
+The integral is constructed in three steps: simple, nonnegative, general.
+
+\subsection{Step 1: nonnegative simple functions}
+
+\begin{definicion}{Integral of a nonnegative simple function}{int_simple}
+Let $\varphi = \sum_{i=1}^n a_i \mathbf{1}_{A_i}$ be simple with $a_i \ge 0$ and $A_i$ disjoint.
+Define
+$$ \int_X \varphi \, d\mu = \sum_{i=1}^n a_i \, \mu(A_i), $$
+with the convention $0 \cdot \infty = 0$.
+\end{definicion}
+
+\obs The definition does not depend on the representation (it suffices to verify it for refinements).
+
+\begin{proposicion}{Linearity and monotonicity on simple functions}{lin_mon_simple}
+If $\varphi, \psi$ are nonnegative simple functions and $a, b \ge 0$:
+\begin{enumerate}
+    \item $\int (a \varphi + b \psi) d\mu = a \int \varphi \, d\mu + b \int \psi \, d\mu$.
+    \item If $\varphi \le \psi$, $\int \varphi \, d\mu \le \int \psi \, d\mu$.
+\end{enumerate}
+Moreover, for $A \in \mathcal{A}$, $\lambda(A) := \int_A \varphi \, d\mu := \int_X \varphi
+\mathbf{1}_A \, d\mu$ is a measure on $(X, \mathcal{A})$.
+\end{proposicion}
+
+\begin{proof}\leavevmode\\
+\textit{(i)} Refining both representations to a common partition, one may suppose that
+$\varphi = \sum_i \alpha_i \mathbf{1}_{C_i}$ and $\psi = \sum_i \beta_i \mathbf{1}_{C_i}$ use the
+same disjoint partition $\{C_i\}$. Then $a \varphi + b \psi = \sum_i (a \alpha_i + b
+\beta_i) \mathbf{1}_{C_i}$, and by definition,
+$$ \int (a \varphi + b \psi) d\mu = \sum_i (a \alpha_i + b \beta_i) \mu(C_i) = a \sum_i \alpha_i
+\mu(C_i) + b \sum_i \beta_i \mu(C_i) = a \int \varphi \, d\mu + b \int \psi \, d\mu. $$
+
+\textit{(ii)} With the same common partition, $\varphi \le \psi$ implies $\alpha_i \le \beta_i$
+on each nonempty $C_i$. Summing with $\mu(C_i) \ge 0$ preserves the inequality:
+$\int \varphi \, d\mu \le \int \psi \, d\mu$.
+
+\textit{$\lambda$ is a measure.} $\lambda(\emptyset) = 0$ is direct. For $\sigma$-additivity,
+let $(A_n)$ be disjoint and $A = \bigsqcup_n A_n$. With $\varphi = \sum_i a_i \mathbf{1}_{C_i}$
+in canonical form,
+$$ \lambda(A) = \sum_i a_i \mu(C_i \cap A) = \sum_i a_i \sum_n \mu(C_i \cap A_n) =
+\sum_n \sum_i a_i \mu(C_i \cap A_n) = \sum_n \lambda(A_n), $$
+where the interchange of sums is legitimate since all terms are nonnegative (Tonelli's
+theorem for series).
+\end{proof}
+
+\subsection{Step 2: nonnegative measurable functions}
+
+\begin{definicion}{Integral of a nonnegative function}{int_no_neg}
+Let $f: X \to [0, \infty]$ be measurable. Define
+$$ \int_X f \, d\mu = \sup\left\{ \int_X \varphi \, d\mu : \varphi \text{ nonnegative simple,}
+\ 0 \le \varphi \le f \right\}. $$
+\end{definicion}
+
+\begin{proposicion}{Basic properties for nonnegative functions}{props_int_pos}
+For measurable $f, g \ge 0$:
+\begin{enumerate}
+    \item If $f \le g$, $\int f \, d\mu \le \int g \, d\mu$.
+    \item If $A \subseteq B$ are measurable, $\int_A f \, d\mu \le \int_B f \, d\mu$.
+    \item If $A \in \mathcal{A}$, $\nu(A) := \int_A f \, d\mu$ defines a measure on
+    $(X, \mathcal{A})$.
+\end{enumerate}
+\end{proposicion}
+
+\begin{proof}\leavevmode\\
+\textit{(i)} Every nonnegative simple $\varphi$ with $0 \le \varphi \le f$ also satisfies
+$0 \le \varphi \le g$, so that the supremum defining $\int f$ is taken over a subfamily of the one that
+defines $\int g$. Therefore $\int f \le \int g$.
+
+\textit{(ii)} $f \mathbf{1}_A \le f \mathbf{1}_B$ because $\mathbf{1}_A \le \mathbf{1}_B$. By (i),
+$\int_A f = \int f \mathbf{1}_A \le \int f \mathbf{1}_B = \int_B f$.
+
+\textit{(iii)} One has $\nu(\emptyset) = 0$. For $\sigma$-additivity, let $(A_n)$ be disjoint and
+$A = \bigsqcup_n A_n$.
+
+\emph{Lower bound $\nu(A) \ge \sum_n \nu(A_n)$.} By (ii), for every finite $N$,
+$\sum_{n=1}^N \nu(A_n) = \nu\!\left(\bigsqcup_{n=1}^N A_n\right) \le \nu(A)$, where the first
+equality follows from finite additivity: for a simple $\varphi \le f$, $\int \varphi
+\mathbf{1}_{\bigsqcup_{n=1}^N A_n} = \sum_{n=1}^N \int \varphi \mathbf{1}_{A_n}$ by
+$\sigma$-additivity of $\mu$ applied to the measure defined by $\varphi$ (Proposition
+\ref{prop:lin_mon_simple}). Letting $N \to \infty$, $\sum_{n=1}^\infty \nu(A_n) \le \nu(A)$.
+
+\emph{Upper bound $\nu(A) \le \sum_n \nu(A_n)$.} Let $\varphi$ be nonnegative simple with
+$0 \le \varphi \le f \mathbf{1}_A$. Since $\varphi$ vanishes outside $A$, $\varphi = \sum_n \varphi
+\mathbf{1}_{A_n}$ (a pointwise sum where at most one term is nonzero by disjointness). By
+$\sigma$-additivity of the measure $E \mapsto \int_E \varphi \, d\mu$ (again Proposition
+\ref{prop:lin_mon_simple}),
+$$ \int_A \varphi \, d\mu = \sum_n \int_{A_n} \varphi \, d\mu \le \sum_n \nu(A_n), $$
+because each $\int_{A_n} \varphi = \int \varphi \mathbf{1}_{A_n} \le \int f \mathbf{1}_{A_n} =
+\nu(A_n)$. Taking the supremum over $\varphi$, $\nu(A) \le \sum_n \nu(A_n)$.
+
+Combining both inequalities, $\nu(A) = \sum_n \nu(A_n)$, that is, $\nu$ is $\sigma$-additive.
+\end{proof}
+
+\subsection{Step 3: general functions}
+
+\begin{definicion}{Integrable function}{integrable}
+Let $f: X \to \mathbb{R}$ be measurable. Decompose $f = f^+ - f^-$, where $f^\pm \ge 0$.
+$f$ is said to be \emph{integrable} if $\int f^+ d\mu < \infty$ and $\int f^- d\mu < \infty$, and define
+$$ \int_X f \, d\mu = \int_X f^+ d\mu - \int_X f^- d\mu. $$
+\end{definicion}
+
+\obs If only one of the two parts is finite, the integral is defined with value in $\mathbb{R} \cup
+\{\pm\infty\}$. If both are infinite, the integral is not defined.
+
+\begin{proposicion}{Characterization by $|f|$}{caract_integrable}
+$f$ is integrable if and only if $|f|$ is integrable, and in that case
+$$ \left| \int_X f \, d\mu \right| \le \int_X |f| \, d\mu \qquad (\text{triangle inequality}). $$
+If $|f| \le g$ with $g$ integrable, then $f$ is integrable.
+\end{proposicion}
+
+\begin{proof}
+$|f| = f^+ + f^-$, so that $|f|$ is integrable iff $f^+$ and $f^-$ are. For the triangle inequality,
+$|\int f| = |\int f^+ - \int f^-| \le \int f^+ + \int f^- = \int |f|$. The last claim
+follows by monotonicity.
+\end{proof}
+
+\begin{proposicion}{Linearity and monotonicity}{lin_int}
+If $f, g$ are integrable and $a, b \in \mathbb{R}$:
+\begin{enumerate}
+    \item $af + bg$ is integrable and $\int (af + bg) d\mu = a \int f \, d\mu + b \int g \, d\mu$.
+    \item If $f \le g$, $\int f \, d\mu \le \int g \, d\mu$.
+    \item $f = 0$ a.e. $\implies \int f \, d\mu = 0$ (and the converse for $f \ge 0$:
+    $\int f \, d\mu = 0 \implies f = 0$ a.e.).
+\end{enumerate}
+\end{proposicion}
+
+\begin{proof}[Proof of (iii)]
+The converse is proved: if $f \ge 0$ and $\int f \, d\mu = 0$, then $f = 0$ a.e. For each $m$,
+the set $A_m = \{f \ge 1/m\}$ satisfies $f \ge \tfrac{1}{m} \mathbf{1}_{A_m}$, whence, integrating,
+$$ \frac{1}{m} \mu(A_m) \le \int_X f \, d\mu = 0. $$
+Hence $\mu(A_m) = 0$ for every $m$, and since $\{f > 0\} = \bigcup_m A_m$, it follows that
+$\mu(\{f > 0\}) = 0$.
+\end{proof}
+
+\obs For signed functions, $\int_X f \, d\mu = 0$ does not imply $f = 0$ a.e.\ (take an
+integrable odd $f$ on $(\mathbb{R}, \lambda)$). The correct version requires all the
+restrictions: if
+$$ \int_A f \, d\mu = 0 \qquad \text{for every } A \in \mathcal{A}, $$
+then $f = 0$ a.e. Indeed, with $A = \{f \ge 0\}$ one gets $f \cdot \mathbf{1}_A = f^+$,
+whence $\int_X f^+ \, d\mu = 0$ and $f^+ = 0$ a.e.\ by the previous result; with
+$A = \{f \le 0\}$ one gets analogously $f^- = 0$ a.e. This remark is what gives
+uniqueness in the Radon-Nikodym theorem and in conditional expectation.
+
+\subsection{Classical inequalities}
+
+\begin{teorema}{Markov's inequality}{markov}
+Let $f \ge 0$ be measurable. For every $a > 0$,
+$$ \mu(\{f \ge a\}) \le \frac{1}{a} \int_X f \, d\mu. $$
+\end{teorema}
+
+\begin{proof}
+$f \ge a \cdot \mathbf{1}_{\{f \ge a\}}$, and integrating $\int f \, d\mu \ge a \mu(\{f \ge a\})$.
+\end{proof}
+
+\begin{corolario}{Chebyshev's inequality}{chebyshev}
+If $X \in L^p$ with $1 \le p < \infty$, for every $a > 0$,
+$$ \mu(\{|X| \ge a\}) \le \frac{1}{a^p} \int |X|^p \, d\mu = \frac{\|X\|_p^p}{a^p}. $$
+\end{corolario}
+
+\begin{proof}
+Apply Markov to $f = |X|^p$ with threshold $a^p$.
+\end{proof}
+
+\obs In probability: $P(|X - E(X)| \ge a) \le \mathrm{Var}(X) / a^2$ (Chebyshev with $p = 2$
+applied to $X - E(X)$). It is the basis of the weak law of large numbers.
+
+\begin{teorema}{Jensen's inequality (integral)}{jensen_int}
+Let $\mu$ be a probability ($\mu(X) = 1$), $f \in L^1(\mu)$, and $\varphi: \mathbb{R} \to \mathbb{R}$
+convex with $\varphi \circ f$ integrable. Then
+$$ \varphi\!\left(\int_X f \, d\mu\right) \le \int_X \varphi \circ f \, d\mu. $$
+\end{teorema}
+
+\begin{proof}
+Let $c = \int_X f \, d\mu$. Since $\varphi$ is convex, at each point it admits a supporting line:
+there is $m \in \mathbb{R}$ such that
+$$ \varphi(y) \ge \varphi(c) + m (y - c) \qquad \forall y \in \mathbb{R}. $$
+(The $m$ is any value between the one-sided derivatives $\varphi_-'(c)$ and $\varphi_+'(c)$, which
+exist by convexity.) Replacing $y = f(x)$ and integrating with respect to $\mu$,
+$$ \int_X \varphi \circ f \, d\mu \ge \int_X \varphi(c) \, d\mu + m \int_X (f - c) \, d\mu
+= \varphi(c) \mu(X) + m \left(\int f \, d\mu - c \mu(X)\right). $$
+Since $\mu(X) = 1$ and $\int f \, d\mu = c$, the second term is zero and one gets
+$\int \varphi \circ f \, d\mu \ge \varphi(c) = \varphi(\int f \, d\mu)$.
+\end{proof}
+
+\obs Useful particular cases: $\varphi(t) = t^p$ for $p \ge 1$ gives $|\int f|^p \le \int |f|^p$ (if
+$\mu$ is a probability); $\varphi(t) = e^t$ gives $\exp(\int f) \le \int e^f$; $\varphi(t) = -\ln t$
+(with $t > 0$) gives $\ln \int f \ge \int \ln f$.
+
+\newpage
+
+\section{Convergence theorems}
+
+When does $\lim_n \int f_n = \int \lim_n f_n$ hold? Not always: let $f_n = n \cdot
+\mathbf{1}_{(0, 1/n)}$ on $(\mathbb{R}, \lambda)$. Then $f_n \to 0$ pointwise (with
+$x > 0$ fixed, for $n > 1/x$ one has $f_n(x) = 0$; at $x \le 0$ all of them vanish), but
+$$ \int_{\mathbb{R}} f_n \, d\lambda = n \cdot \frac{1}{n} = 1 \qquad \text{for every } n, $$
+so that $\lim_n \int f_n = 1 \ne 0 = \int \lim_n f_n$: the mass escapes through an increasingly
+tall and narrow spike. The same phenomenon in the version for series: with $g_1 = f_1$ and
+$g_n = f_n - f_{n-1}$ one has $\sum_{n=1}^m g_n = f_m$, and
+$$ \sum_{n=1}^\infty \int_{\mathbb{R}} g_n \, d\lambda \ne \int_{\mathbb{R}}
+\sum_{n=1}^\infty g_n \, d\lambda. $$
+The theorems of this section give conditions (monotonicity, domination) under which the
+interchange is legitimate.
+
+\begin{teorema}{Monotone Convergence (Beppo Levi)}{mct}
+Let $(f_n)$ be an increasing sequence of nonnegative measurable functions with $f_n \nearrow f$
+pointwise. Then
+$$ \int_X f \, d\mu = \lim_{n \to \infty} \int_X f_n \, d\mu. $$
+\end{teorema}
+
+\begin{proof}
+$f = \lim f_n$ is measurable. Since $f_n \le f$ for every $n$,
+$$ \lim_n \int f_n \, d\mu \le \int f \, d\mu. $$
+For the other inequality, let $\varphi$ be nonnegative simple with $0 \le \varphi \le f$ and $0 < c < 1$.
+Define $A_n = \{x : f_n(x) \ge c \varphi(x)\}$. Since $f_n \nearrow f \ge \varphi > c\varphi$
+pointwise on $\{\varphi > 0\}$, the $A_n$ increase to $X$ (or, more precisely, their union covers
+$\{\varphi > 0\}$, and outside it there is nothing to prove). Then
+$$ \int f_n \, d\mu \ge \int_{A_n} f_n \, d\mu \ge c \int_{A_n} \varphi \, d\mu. $$
+Since $\nu(A) := \int_A \varphi \, d\mu$ is a measure, by continuity
+$\int_{A_n} \varphi \, d\mu \to \int_X \varphi \, d\mu$. Passing to the limit,
+$\lim_n \int f_n \, d\mu \ge c \int \varphi \, d\mu$. Letting $c \to 1$ and then taking the sup over $\varphi$,
+one gets $\lim_n \int f_n \, d\mu \ge \int f \, d\mu$.
+\end{proof}
+
+\begin{teorema}{Fatou's Lemma}{fatou}
+If $(f_n)$ is a sequence of nonnegative measurable functions,
+$$ \int_X \varliminf_n f_n \, d\mu \le \varliminf_n \int_X f_n \, d\mu. $$
+\end{teorema}
+
+\begin{proof}
+Define $g_m = \inf_{n \ge m} f_n$. The sequence $(g_m)$ is increasing and $g_m \nearrow
+\varliminf_n f_n$. By MCT,
+$$ \int_X \varliminf_n f_n \, d\mu = \lim_m \int_X g_m \, d\mu. $$
+Since $g_m \le f_n$ for every $n \ge m$, $\int g_m \le \int f_n$, so that
+$\int g_m \le \inf_{n \ge m} \int f_n$. Passing to the limit in $m$,
+$\lim_m \int g_m \le \varliminf_n \int f_n$.
+\end{proof}
+
+\obs In general the inequality is strict. Example: $f_n = \mathbf{1}_{[n, n+1]}$ on $\mathbb{R}$
+satisfies $\varliminf f_n = 0$ but $\int f_n = 1$ for every $n$.
+
+\begin{teorema}{Dominated Convergence (Lebesgue)}{dct}
+Let $(f_n)$ be a sequence of measurable functions with $f_n \to f$ a.e., and suppose there is
+an integrable function $g$ with $|f_n| \le g$ a.e. for every $n$. Then $f$ is integrable and
+$$ \int_X f \, d\mu = \lim_{n \to \infty} \int_X f_n \, d\mu. $$
+Moreover, $\int |f_n - f| d\mu \to 0$.
+\end{teorema}
+
+\begin{proof}
+Passing to a set of full measure, one may suppose convergence and domination at every point.
+Since $|f| \le g$, $f$ is integrable. Apply Fatou to the two nonnegative sequences
+$g + f_n \ge 0$ and $g - f_n \ge 0$:
+
+\textit{For $g + f_n$:}
+$$ \int g + \int f \le \varliminf \int (g + f_n) = \int g + \varliminf \int f_n, $$
+so that $\int f \le \varliminf \int f_n$.
+
+\textit{For $g - f_n$:}
+$$ \int g - \int f \le \varliminf \int (g - f_n) = \int g - \varlimsup \int f_n, $$
+so that $\varlimsup \int f_n \le \int f$.
+
+Combining, $\varlimsup \int f_n \le \int f \le \varliminf \int f_n$, which gives that the limit
+exists and equals $\int f$. The claim $\int|f_n - f| d\mu \to 0$ follows by applying DCT to
+$|f_n - f|$ with dominating function $2g$.
+\end{proof}
+
+\begin{corolario}{Bounded convergence}{conv_acotada}
+Let $\mu(X) < \infty$, $f_n \to f$ a.e.\ and $|f_n| \le M$ a.e.\ for every $n$, with $M$
+constant. Then $f$ is integrable and $\int_X f \, d\mu = \lim_n \int_X f_n \, d\mu$.
+\end{corolario}
+
+\begin{proof}
+The constant function $g \equiv M$ is integrable, because $\int_X M \, d\mu = M \mu(X) < \infty$,
+and it dominates all the $f_n$. Dominated convergence is applied.
+\end{proof}
+
+\begin{ejemplo}{A limit computed with dominated convergence}{ej_tcd}
+Compute
+$$ L = \lim_{n \to \infty} \int_0^\pi (\sin x)^n \sqrt{x} \, dx. $$
+The integrand converges pointwise to $0$ on $[0, \pi] \setminus \{\pi/2\}$ (there
+$0 \le \sin x < 1$, so that $(\sin x)^n \to 0$), whereas at
+$x = \pi/2$ it equals $\sqrt{\pi/2}$ for every $n$: the pointwise limit is $0$ a.e. The convergence
+is not uniform (near $\pi/2$ the integrand stays close to $\sqrt{\pi/2}$), so
+that the classical interchange criterion does not apply. But
+$$ |(\sin x)^n \sqrt{x}| \le \sqrt{x} =: g(x), \qquad \int_0^\pi \sqrt{x} \, dx =
+\tfrac{2}{3} \pi^{3/2} < \infty, $$
+and by dominated convergence
+$$ L = \int_0^\pi \lim_n (\sin x)^n \sqrt{x} \, dx = \int_0^\pi 0 \, dx = 0. $$
+\end{ejemplo}
+
+\subsection{Implications between types of convergence}
+
+There are four types of convergence for sequences of measurable functions: \emph{uniform},
+\emph{pointwise} (or a.e.), \emph{in measure} and \emph{in $L^p$}. The elementary
+implications are shown, together with two fine classical results: Riesz's theorem (an a.e.\ subsequence from
+convergence in measure) and the DCT in measure.
+
+\begin{proposicion}{Convergence in $L^p$ implies convergence in measure}{Lp_implica_medida}
+If $f_n \to f$ in $L^p$ with $1 \le p < \infty$, then $f_n \to f$ in measure.
+\end{proposicion}
+
+\begin{proof}
+By Chebyshev applied to $|f_n - f|$,
+$$ \mu(\{|f_n - f| \ge \epsilon\}) \le \frac{\|f_n - f\|_p^p}{\epsilon^p} \to 0. $$
+\end{proof}
+
+\begin{teorema}{Riesz: a.e. subsequence}{riesz_subsucesion}
+If $f_n \to f$ in measure, there is a subsequence $(f_{n_k})$ with $f_{n_k} \to f$ almost everywhere.
+\end{teorema}
+
+\begin{proof}
+Construct a subsequence $(f_{n_k})$ with
+$$ \mu\!\left(\{|f_{n_k} - f| > 2^{-k}\}\right) < 2^{-k}. $$
+This is possible because convergence in measure gives, for each $k$, an $n_k$ satisfying that, and
+the $n_k$ can be chosen strictly increasing.
+
+Let $A_k = \{|f_{n_k} - f| > 2^{-k}\}$ and $N = \varlimsup_k A_k$. By Borel-Cantelli I (because
+$\sum \mu(A_k) < \infty$), $\mu(N) = 0$. If $x \notin N$, $x$ is in at most finitely many $A_k$,
+so
+that for large $k$, $|f_{n_k}(x) - f(x)| \le 2^{-k} \to 0$. Hence $f_{n_k} \to f$ outside $N$.
+\end{proof}
+
+\obs In general, convergence in measure does \emph{not} imply a.e.\ convergence (the ``walking
+waves'' mentioned in the section on convergence). But \emph{a subsequence}
+does converge a.e.
+
+\begin{proposicion}{A.e.\ convergence implies convergence in measure if $\mu(X) < \infty$}{ctp_implica_medida}
+If $\mu(X) < \infty$ and $f_n \to f$ a.e., then $f_n \to f$ in measure.
+\end{proposicion}
+
+\begin{proof}
+By Egoroff, for every $\delta > 0$ there is $N$ with $\mu(N) < \delta$ such that $f_n \to f$ uniformly
+on $N^c$. Given $\epsilon > 0$, on $N^c$ there is $n_0$ such that $|f_n - f| < \epsilon$ for
+$n \ge n_0$,
+that is, $\{|f_n - f| \ge \epsilon\} \subseteq N$. Hence $\mu(\{|f_n - f| \ge \epsilon\}) \le \delta$,
+and $\delta$ was arbitrary.
+\end{proof}
+
+\begin{teorema}{Dominated convergence in measure}{dct_en_medida}
+Let $(f_n)$ be a measurable sequence with $f_n \to f$ in measure, and suppose there is $g \ge 0$
+integrable with $|f_n| \le g$ a.e.\ for every $n$. Then $f \in L^1$, $\int |f_n - f| d\mu
+\to 0$, and in particular $\int f_n d\mu \to \int f \, d\mu$.
+
+More generally, if $|f_n|^p \le g$ with $g$ integrable and $1 \le p < \infty$, then
+$f_n \to f$ in $L^p$.
+\end{teorema}
+
+\begin{proof}
+By Riesz's theorem there is a subsequence $f_{n_k} \to f$ a.e., so that $|f| \le g$ a.e.\
+and $f \in L^1$.
+
+For convergence in $L^1$, suppose by contradiction that $\int |f_n - f| d\mu \not\to 0$. There is
+$\epsilon_0 > 0$ and a subsequence $(f_{n_j})$ with $\int |f_{n_j} - f| d\mu \ge \epsilon_0$. Since
+$f_{n_j} \to f$ in measure, a sub-subsequence $(f_{n_{j_l}})$ with $f_{n_{j_l}} \to f$
+a.e. is extracted. By the classical DCT, $\int |f_{n_{j_l}} - f| d\mu \to 0$, which contradicts the lower bound
+$\epsilon_0$.
+
+The $L^p$ version is analogous, applying DCT to $|f_n - f|^p \le 2^p (|f_n|^p + |f|^p) \le
+2^p (g + |f|^p)$.
+\end{proof}
+
+\obs Collecting the implications, in finite measure one has
+$$ \text{uniform} \Longrightarrow \text{a.e.} \Longrightarrow \text{in measure}, \qquad
+L^p \Longrightarrow \text{in measure}. $$
+And with integrable domination, ``in measure'' or ``a.e.'' imply ``in $L^p$''. The other
+implications are false in general.
+
+\subsection{Density of simple and continuous functions in \texorpdfstring{$L^p$}{Lp}}
+
+\begin{teorema}{Simple functions are dense in $L^p$}{simples_densas}
+Let $1 \le p < \infty$. The set of integrable simple functions (that is, simple $\varphi$
+with $\|\varphi\|_p < \infty$) is dense in $L^p(\mu)$.
+\end{teorema}
+
+\begin{proof}
+Let $f \in L^p$. Decompose $f = f^+ - f^-$. For $f^+ \ge 0$, by the theorem of approximation
+by simple functions there are $\varphi_n \nearrow f^+$ with $\varphi_n$ nonnegative simple. Since
+$0 \le \varphi_n \le f^+$, $\varphi_n \in L^p$. Moreover $|\varphi_n - f^+|^p \le (f^+)^p \in L^1$,
+and it converges to 0 pointwise, so that by DCT $\|\varphi_n - f^+\|_p \to 0$. Analogously for $f^-$.
+\end{proof}
+
+\begin{teorema}{Continuous functions are dense in $L^p(\mathbb{R}, \lambda)$}{continuas_densas}
+Let $1 \le p < \infty$. The continuous functions with compact support $C_c(\mathbb{R})$ are dense
+in $L^p(\mathbb{R}, \lambda)$.
+\end{teorema}
+
+\begin{proof}
+By the previous theorem it suffices to approximate integrable simple functions by continuous ones. By
+linearity, the case $f = \mathbf{1}_A$ with $\lambda(A) < \infty$ suffices.
+
+\textit{Reduction to intervals.} By construction of the Lebesgue measure (via outer
+measure with covers by intervals), given $\epsilon > 0$ there is a countable union of
+open intervals $U = \bigcup_n (a_n, b_n)$ with $A \subseteq U$ and $\lambda(U \setminus A) <
+\epsilon^p / 2$. Truncating to a finite union $V = (a_1, b_1) \cup \cdots \cup (a_N, b_N)$,
+one may suppose $\lambda(U \setminus V) < \epsilon^p / 2$. Then $\|\mathbf{1}_A -
+\mathbf{1}_V\|_p^p \le \lambda(A \triangle V) \le \lambda(U \setminus A) + \lambda(U \setminus V) <
+\epsilon^p$.
+
+\textit{Approximation by continuous functions on each interval.} For $\mathbf{1}_{(a, b)}$, define
+$g_\eta: \mathbb{R} \to [0, 1]$ continuous with support in $(a - \eta, b + \eta)$, equal to $1$ on
+$[a, b]$ and decreasing linearly to $0$ at the ends. Then $|\mathbf{1}_{(a, b)} - g_\eta|$
+vanishes outside $[a - \eta, a] \cup [b, b + \eta]$ and is bounded by 1, so that
+$$ \|\mathbf{1}_{(a, b)} - g_\eta\|_p^p \le 2 \eta \to 0 \quad \text{as } \eta \to 0. $$
+
+Combining, $\|\mathbf{1}_V - \sum_k g_\eta^{(k)}\|_p$ becomes arbitrarily small, and the finite
+sum of continuous functions with compact support is continuous with compact support. Hence for every
+$\epsilon > 0$ there is $g \in C_c(\mathbb{R})$ with $\|\mathbf{1}_A - g\|_p < 2 \epsilon$.
+\end{proof}
+
+\obs Density allows proving properties in $L^p$ by verifying them first on simple (or
+continuous) functions and then passing to the limit. It is very useful for extending operators: if an operator is
+linear and continuous on a dense subset, it extends uniquely to the whole space.
+
+\newpage
+
+\section{The \texorpdfstring{$L^p$}{Lp} spaces}
+
+The theory of the $L^p$ spaces as normed spaces (the Young, Hölder and
+Minkowski inequalities, completeness (Riesz-Fischer theorem), the inclusions between the $L^p$ and the
+$\ell^p$, the parallelogram law, the dual space and the Riesz representation theorem)
+is developed, with proofs, in the \emph{Real analysis} notes. To avoid duplicating it,
+only the definition and the statements that the rest of these notes uses are fixed here, and
+what does not appear there is proved: the orthogonal decomposition of a Hilbert space, on
+which conditional expectation and the proof of Radon-Nikodym rely.
+
+Recall that, for $1 \le p < \infty$,
+$$ L^p(\mu) = \left\{ f : X \to \mathbb{R} \text{ measurable} : \int_X |f|^p \, d\mu < \infty
+\right\}, \qquad \|f\|_p = \left( \int_X |f|^p \, d\mu \right)^{1/p}, $$
+identifying two functions that coincide a.e.\ (without that identification, $\|\cdot\|_p$ is
+only a seminorm: $\|f\|_p = 0$ is equivalent to $f = 0$ a.e.). The facts that will be used, all
+proved in the \emph{Real analysis} notes:
+
+\begin{enumerate}
+    \item \emph{Hölder's inequality:} if $\tfrac{1}{p} + \tfrac{1}{q} = 1$ with
+    $1 < p, q < \infty$, $f \in L^p(\mu)$ and $g \in L^q(\mu)$, then $fg \in L^1(\mu)$ and
+    $\|fg\|_1 \le \|f\|_p \, \|g\|_q$. For $p = q = 2$ it is the Cauchy-Schwarz inequality.
+    \item \emph{Minkowski's inequality:} $\|f + g\|_p \le \|f\|_p + \|g\|_p$. With it,
+    $(L^p(\mu), \|\cdot\|_p)$ is a normed space.
+    \item \emph{Riesz-Fischer theorem:} $L^p(\mu)$ is complete, that is, a Banach
+    space. (The proof runs on the tools of these notes: monotone
+    convergence, Fatou's Lemma and dominated convergence.)
+    \item $L^2(\mu)$ is a \emph{Hilbert space}: its norm comes from the inner product
+    $$ \langle f, g \rangle = \int_X f g \, d\mu, $$
+    finite by Cauchy-Schwarz.
+    \item \emph{Projection onto a closed convex set:} if $H$ is a Hilbert space,
+    $S \subseteq H$ is convex, closed and nonempty, and $x \in H$, there is a unique $s_0 \in S$
+    that realizes the distance: $\|x - s_0\| = \inf\{\|x - s\| : s \in S\}$.
+    \item \emph{Riesz representation:} every continuous linear functional
+    $\varphi: H \to \mathbb{R}$ on a Hilbert space is written $\varphi(x) =
+    \langle x, z \rangle$ for a unique $z \in H$. In $L^2(\mu)$: every continuous linear
+    functional is ``integrating against a function''. This is exactly the form in which
+    the proof of Radon-Nikodym will use it.
+\end{enumerate}
+
+\obs If $\mathcal{G} \subseteq \mathcal{F}$ is a sub-$\sigma$-algebra,
+$L^p(\mathcal{G}) \subseteq L^p(\mathcal{F})$ is a subspace and, being itself complete
+(Riesz-Fischer), it is a \emph{closed} subspace. Conditional expectation will use
+this fact.
+
+\begin{teorema}{Orthogonal decomposition}{descomp_ortogonal}
+Let $S$ be a closed subspace of a Hilbert space $H$, and let
+$S^\perp = \{v \in H : \langle v, s \rangle = 0 \text{ for every } s \in S\}$. Then
+$H = S \oplus S^\perp$: every $x \in H$ is written uniquely as $x = s_0 + v$ with
+$s_0 \in S$ and $v \in S^\perp$.
+\end{teorema}
+
+\begin{proof}
+A subspace is convex and, by the projection onto a closed convex set (item (v) above),
+there is the $s_0 \in S$ that realizes the distance from $x$ to $S$. It is claimed that
+$x - s_0 \in S^\perp$. Let $s \in S$ and $t \in \mathbb{R}$; since $s_0 + t s \in S$,
+$$ \|x - s_0\|^2 \le \|x - s_0 - t s\|^2 = \|x - s_0\|^2 - 2 t \langle x - s_0, s \rangle +
+t^2 \|s\|^2. $$
+The function $\phi(t) = t^2 \|s\|^2 - 2 t \langle x - s_0, s \rangle$ is then $\ge 0$ for
+every $t$ and vanishes at $t = 0$: its derivative at $0$ must vanish, that is
+$\langle x - s_0, s \rangle = 0$. Since $s \in S$ was arbitrary, $x - s_0 \in S^\perp$ and
+$x = s_0 + (x - s_0) \in S + S^\perp$.
+
+The decomposition is unique because $S \cap S^\perp = \{0\}$: if $w$ belongs to both,
+$\langle w, w \rangle = 0$ and $w = 0$.
+\end{proof}
+
+The operator $P: H \to S$, $P(x) = s_0$, is called the \emph{orthogonal projection} onto $S$.
+
+\newpage
+
+\section{Product measures: Fubini-Tonelli}
+
+Given two measures, how does one integrate a function on the product? The theorems of Tonelli and
+Fubini allow interchanging the order of integration.
+
+\begin{definicion}{Product measure}{medida_producto}
+Let $(X, \mathcal{A}, \mu)$ and $(Y, \mathcal{B}, \nu)$ be $\sigma$-finite measure spaces. On the
+product $X \times Y$ define:
+\begin{itemize}
+    \item The product $\sigma$-algebra $\mathcal{A} \otimes \mathcal{B} = \sigma(\{A \times B :
+    A \in \mathcal{A}, B \in \mathcal{B}\})$.
+    \item The product measure $\mu \otimes \nu$ is the unique measure on $\mathcal{A} \otimes
+    \mathcal{B}$ with $(\mu \otimes \nu)(A \times B) = \mu(A) \nu(B)$ for measurable rectangles.
+\end{itemize}
+\end{definicion}
+
+\obs In particular, $\lambda \otimes \lambda$ on $\mathbb{R}^2$ extends to the
+$n$-dimensional Lebesgue measure, which assigns to a rectangle $[a, b] \times [c, d]$ the area $(b-a)(d-c)$.
+
+\begin{teorema}{Tonelli (nonnegative functions)}{tonelli}
+Let $f: X \times Y \to [0, \infty]$ be measurable with respect to $\mathcal{A} \otimes \mathcal{B}$, with
+$\mu$ and $\nu$ $\sigma$-finite. Then:
+\begin{enumerate}
+    \item For each $x \in X$, $y \mapsto f(x, y)$ is $\mathcal{B}$-measurable (and symmetrically
+    for $y$).
+    \item $x \mapsto \int_Y f(x, y) \, d\nu(y)$ is $\mathcal{A}$-measurable (and symmetrically).
+    \item The equality
+    $$ \int_{X \times Y} f \, d(\mu \otimes \nu) = \int_X \!\left( \int_Y f(x, y) \, d\nu(y)
+    \right) d\mu(x) = \int_Y \!\left( \int_X f(x, y) \, d\mu(x) \right) d\nu(y) $$
+    holds.
+\end{enumerate}
+\end{teorema}
+
+\begin{proof}
+\textit{Step 1: measurability of the sections.} Let $\mathcal{M} \subseteq \mathcal{A} \otimes
+\mathcal{B}$ be the class of sets $E$ such that the section $E_x = \{y : (x, y) \in E\}$ is
+$\mathcal{B}$-measurable for every $x$. If $E = A \times B$ is a measurable rectangle, $E_x = B$ if
+$x \in A$, $\emptyset$ otherwise, in both cases measurable. $\mathcal{M}$ is a $\sigma$-algebra
+(directly: $(E^c)_x = (E_x)^c$, $(\bigcup E_n)_x = \bigcup (E_n)_x$). Since it contains the
+rectangles, $\mathcal{M} \supseteq \sigma(\text{rectangles}) = \mathcal{A} \otimes
+\mathcal{B}$. By approximation by simple functions, for measurable $f$ so is $f(x, \cdot)$.
+
+\textit{Step 2: case $f = \mathbf{1}_E$, $E \in \mathcal{A} \otimes \mathcal{B}$.} Define
+$g_E(x) = \nu(E_x)$. It must be seen that $g_E$ is $\mathcal{A}$-measurable and $\int_X g_E \, d\mu = (\mu
+\otimes \nu)(E)$. For rectangles $E = A \times B$, $g_E(x) = \nu(B) \mathbf{1}_A(x)$, measurable,
+and $\int_X g_E \, d\mu = \mu(A) \nu(B) = (\mu \otimes \nu)(E)$.
+
+The class $\mathcal{D}$ of the $E$ where this property holds is a \emph{monotone class}: closed
+under increasing unions and decreasing intersections (assuming $\sigma$-finiteness in order to
+interchange limits with integrals via MCT) and under differences of comparable sets. By the
+monotone class lemma (or by Dynkin's $\pi$-$\lambda$ lemma), $\mathcal{D}$ contains the
+$\sigma$-algebra generated by the rectangles, which is $\mathcal{A} \otimes \mathcal{B}$.
+
+\textit{Step 3: case $f$ nonnegative simple.} By linearity over the terms
+$c_i \mathbf{1}_{E_i}$.
+
+\textit{Step 4: case $f \ge 0$ general.} Take nonnegative simple $\varphi_n \nearrow f$
+(approximation by simple functions). For each $x$, $\varphi_n(x, \cdot) \nearrow f(x, \cdot)$. By MCT on
+$Y$,
+$$ \int_Y \varphi_n(x, y) \, d\nu(y) \nearrow \int_Y f(x, y) \, d\nu(y) =: F(x). $$
+$F$ is a pointwise limit of $\mathcal{A}$-measurable functions (by Step 3), so that $F$ is
+$\mathcal{A}$-measurable. Applying MCT again on $X$,
+$$ \int_X F \, d\mu = \lim_n \int_X \!\int_Y \varphi_n \, d\nu \, d\mu = \lim_n \int_{X \times Y}
+\varphi_n \, d(\mu \otimes \nu) = \int_{X \times Y} f \, d(\mu \otimes \nu), $$
+using the simple case. Symmetrically for the other order.
+\end{proof}
+
+\begin{teorema}{Fubini (integrable functions)}{fubini}
+Let $f: X \times Y \to \mathbb{R}$ be measurable. If $f$ is integrable with respect to $\mu \otimes \nu$
+(or if, by Tonelli, $\int_X \int_Y |f| \, d\nu \, d\mu < \infty$), then:
+\begin{enumerate}
+    \item For $\mu$-a.e.\ $x$, the function $y \mapsto f(x, y)$ is in $L^1(\nu)$.
+    \item The function $x \mapsto \int_Y f(x, y) \, d\nu(y)$, defined $\mu$-a.e., is in
+    $L^1(\mu)$.
+    \item Tonelli's equality holds for $f$, with finite integrals.
+\end{enumerate}
+\end{teorema}
+
+\begin{proof}
+Decompose $f = f^+ - f^-$ with $f^\pm \ge 0$ measurable. By Tonelli applied to $|f| = f^+ + f^-$,
+$$ \int_X \!\int_Y |f| \, d\nu \, d\mu = \int_{X \times Y} |f| \, d(\mu \otimes \nu) < \infty. $$
+
+For the left-hand side to be finite, $\int_Y |f(x, y)| \, d\nu(y) < \infty$ for $\mu$-a.e.\
+$x$, that is, $f(x, \cdot) \in L^1(\nu)$ $\mu$-a.e. At those points $x$ define
+$$ F(x) = \int_Y f(x, y) \, d\nu(y) = \int_Y f^+(x, y) \, d\nu(y) - \int_Y f^-(x, y) \, d\nu(y), $$
+which is the difference of two measurable functions that are finite $\mu$-a.e., so that $F$ is
+$\mathcal{A}$-measurable and, by Tonelli applied to $f^\pm$,
+$$ \int_X F \, d\mu = \int_{X \times Y} f^+ \, d(\mu \otimes \nu) - \int_{X \times Y} f^- \,
+d(\mu \otimes \nu) = \int_{X \times Y} f \, d(\mu \otimes \nu), $$
+and all the integrals are finite because $f \in L^1(\mu \otimes \nu)$.
+\end{proof}
+
+\obs In practice, the workflow is: \textit{first} verify with Tonelli (on $|f|$) that the
+double integral is finite, \textit{then} apply Fubini to interchange the order with $f$.
+Skipping the check gives wrong results (the classical computation
+$\int_0^1 \int_0^1 (x^2 - y^2)/(x^2 + y^2)^2 \, dx \, dy = \pi/4$ vs.\ $\int \int = -\pi/4$ happens
+because $|f|$ is not integrable).
+
+\newpage
+
+\section{Complete measure spaces}
+
+\begin{definicion}{Complete space}{esp_completo}
+$(X, \mathcal{A}, \mu)$ is \emph{complete} if every subset of a set of measure zero is
+measurable (in particular, it has measure zero):
+$$ E \in \mathcal{A}, \ \mu(E) = 0, \ F \subseteq E \implies F \in \mathcal{A}. $$
+\end{definicion}
+
+\obs Every measure space can be \emph{completed}: given $(X, \mathcal{A}, \mu)$, define
+$\overline{\mathcal{A}} = \{A \cup N : A \in \mathcal{A}, N \subseteq E \text{ with } \mu(E) = 0\}$
+and extend $\mu$ to $\overline{\mathcal{A}}$. For example, $(\mathbb{R}, \mathcal{B}, \lambda)$
+is not complete, but its completion is $(\mathbb{R}, \mathcal{L}, \lambda)$.
+
+\obs In complete spaces, if $f$ is measurable and $g = f$ a.e., then $g$ is also measurable.
+This makes it easier to handle ``a.e.'' properties.
+
+\newpage
+
+\section{Signed measures and the Radon-Nikodym theorem}
+
+\begin{definicion}{Signed measure}{medida_signo}
+A function $\nu: \mathcal{A} \to [-\infty, +\infty]$ is a \emph{signed measure} if:
+\begin{enumerate}
+    \item $\nu(\emptyset) = 0$.
+    \item $\nu$ takes at most one of the values $\pm\infty$.
+    \item $\sigma$-additivity: $\nu(\bigsqcup A_n) = \sum \nu(A_n)$ (with absolute convergence
+    when
+    the left-hand side is finite).
+\end{enumerate}
+\end{definicion}
+
+\begin{definicion}{Absolute continuity}{abs_cont}
+Let $\mu, \nu$ be measures on $(X, \mathcal{A})$. $\nu$ is said to be \emph{absolutely continuous}
+with respect to $\mu$ (written $\nu \ll \mu$) if
+$$ \mu(E) = 0 \implies \nu(E) = 0 \qquad \text{for every } E \in \mathcal{A}. $$
+\end{definicion}
+
+\begin{definicion}{Mutually singular}{singular}
+$\mu$ and $\nu$ are \emph{mutually singular} (written $\mu \perp \nu$) if there are
+disjoint $A, B \in \mathcal{A}$ with $A \cup B = X$ and $\mu(B) = 0 = \nu(A)$.
+\end{definicion}
+
+\begin{ejemplo}{Absolutely continuous measures via integration}{}
+If $f \ge 0$ is measurable and $\mu$ is a measure, $\nu(A) = \int_A f \, d\mu$ is a measure on the
+same measurable space, and it is absolutely continuous with respect to $\mu$: if $\mu(A) = 0$, then
+$\int_A f \, d\mu = 0$ (the integral over a $\mu$-null set is zero). The
+Radon-Nikodym theorem, later on, will say that \emph{every} absolutely continuous measure (under
+reasonable hypotheses) has this form.
+\end{ejemplo}
+
+\subsection{Lebesgue decomposition + Radon-Nikodym}
+
+The theorem proved next is the combined version: \emph{every} measure $\nu$ decomposes into an
+absolutely continuous part and a singular part with respect to $\mu$. When $\nu \ll \mu$, the singular
+part disappears and only the derivative remains.
+
+\begin{teorema}{Lebesgue-Radon-Nikodym}{radon_nikodym}
+Let $\mu$ and $\nu$ be $\sigma$-finite measures on $(X, \mathcal{A})$. Then:
+\begin{enumerate}
+    \item There are unique measures $\nu_a, \nu_\perp$ such that
+    $$ \nu = \nu_a + \nu_\perp, \qquad \nu_a \ll \mu, \qquad \nu_\perp \perp \mu. $$
+    \item There is a measurable function $h: X \to [0, \infty)$, unique $\mu$-a.e., such that
+    $$ \nu_a(E) = \int_E h \, d\mu \qquad \forall E \in \mathcal{A}. $$
+\end{enumerate}
+The function $h$ is called the \emph{Radon-Nikodym derivative} of $\nu_a$ with respect to $\mu$, and it is
+denoted $h = \dfrac{d\nu_a}{d\mu}$. In particular, when $\nu \ll \mu$, $\nu_\perp = 0$ and
+$\nu(E) = \int_E h \, d\mu$.
+\end{teorema}
+
+\begin{proof}[Proof (von Neumann)]
+The case of finite measures is done; the passage to $\sigma$-finite ones is by decomposition into finite
+parts.
+
+\textit{Auxiliary functional.} On $L^2(\mu + \nu)$ define
+$$ \varphi(f) = \int_X f \, d\nu. $$
+It is linear and continuous: by Cauchy-Schwarz (with $g \equiv 1$),
+$$ |\varphi(f)| \le \int_X |f| \, d\nu \le \nu(X)^{1/2} \, \|f\|_{L^2(\nu)} \le \nu(X)^{1/2} \,
+\|f\|_{L^2(\mu+\nu)}. $$
+By the Riesz representation theorem applied to $L^2(\mu + \nu)$, there is $g \in
+L^2(\mu + \nu)$ such that
+\begin{equation}\label{eq:rn1}
+\int_X f \, d\nu = \int_X f g \, d(\mu + \nu) \qquad \forall f \in L^2(\mu + \nu).
+\end{equation}
+
+\textit{$0 \le g \le 1$ almost everywhere.} Taking $f = \mathbf{1}_A$ in \eqref{eq:rn1},
+$$ \nu(A) = \int_A g \, d(\mu + \nu), $$
+whence $0 \le \int_A g \, d(\mu + \nu) \le (\mu + \nu)(A)$. This forces $0 \le g \le 1$
+$(\mu + \nu)$-a.e.
+
+\textit{Decomposition.} Let $N = \{x : g(x) = 1\}$ and $M = N^c = \{x : g(x) < 1\}$. Define
+$$ \nu_\perp(E) = \nu(E \cap N), \qquad \nu_a(E) = \nu(E \cap M). $$
+It is proved that $\nu_\perp \perp \mu$ and $\nu_a \ll \mu$:
+\begin{itemize}
+    \item $\mu(N) = 0$: taking $f = \mathbf{1}_N$ in \eqref{eq:rn1},
+    $\nu(N) = \int_N g \, d(\mu+\nu)
+    = (\mu+\nu)(N) = \mu(N) + \nu(N)$, whence $\mu(N) = 0$. Thus $\nu_\perp$ and $\mu$ are
+    mutually singular (separated by $N$).
+    \item If $\mu(E) = 0$, it must hold that $\nu_a(E) = \nu(E \cap M) = 0$. Rearranging \eqref{eq:rn1}
+    (for $f = \mathbf{1}_{E \cap M}$),
+    $$ \int_{E \cap M} (1 - g) \, d\nu = \int_{E \cap M} g \, d\mu = 0. $$
+    On $M$, $1 - g > 0$, so that necessarily $\nu(E \cap M) = 0$.
+\end{itemize}
+
+\textit{Derivative.} Iterating \eqref{eq:rn1} with $f_n = \mathbf{1}_E (1 + g + g^2 + \cdots + g^n)$ and
+subtracting, one obtains
+$$ \int_E (1 - g^{n+1}) \, d\nu = \int_E (g + g^2 + \cdots + g^{n+1}) \, d\mu. $$
+On $M$, $g^{n+1} \to 0$ and $g + g^2 + \cdots \to g/(1-g)$. By monotone convergence,
+$$ \nu_a(E) = \nu(E \cap M) = \int_{E \cap M} \frac{g}{1 - g} \, d\mu = \int_E h \, d\mu, $$
+where $h = \mathbf{1}_M \cdot g/(1 - g)$.
+
+Uniqueness follows in the standard way: if two decompositions coexisted, their difference would be at the same time
+absolutely continuous and singular, which forces it to be zero.
+\end{proof}
+
+\subsection{Application: the Fundamental Theorem of Calculus}
+
+Let $F: \mathbb{R} \to \mathbb{R}$ be nondecreasing and right-continuous, and $\lambda_F$ its
+Lebesgue-Stieltjes measure. If $\lambda_F \ll \lambda$ (which happens, for example, when $F$ is
+\emph{absolutely continuous} in the classical sense), by Radon-Nikodym there is
+$f \in L^1_{\mathrm{loc}}(\mathbb{R})$ such that
+$$ F(b) - F(a) = \lambda_F((a, b]) = \int_{(a, b]} f \, d\lambda = \int_a^b f(x) \, dx. $$
+The function $f = d\lambda_F / d\lambda$ plays the role of the derivative of $F$ in the
+distributional sense. This is the \emph{general} version of the Fundamental Theorem of Calculus.
+
+\newpage
+
+\section{Conditional Expectation}
+
+Let $(\Omega, \mathcal{F}, P)$ be a probability space. Recall elementary conditional
+probability: given events $A, B$ with $P(B) > 0$,
+$$ P(A \mid B) = \frac{P(A \cap B)}{P(B)}. $$
+This is a ``basic'' version that only allows conditioning on an event. What is sought now
+is to condition with respect to an \emph{entire $\sigma$-algebra} $\mathcal{G} \subseteq \mathcal{F}$,
+which represents the available information.
+
+\obs Two direct consequences of the elementary definition. If $A$ and $B$ are independent
+($P(A \cap B) = P(A) P(B)$), then $P(A \mid B) = P(A)$: knowing that $B$ occurred provides no
+information about $A$. And if $\{B_1, B_2, \dots\}$ is a partition of $\Omega$ with
+$P(B_i) > 0$, the sets $\{A \cap B_i\}$ partition $A$, so that
+$$ P(A) = \sum_i P(A \cap B_i) = \sum_i P(A \mid B_i) \, P(B_i)
+\qquad \text{(total probability)}, $$
+and solving from $P(B_k \mid A) \, P(A) = P(A \cap B_k) = P(A \mid B_k) \, P(B_k)$ one obtains
+\textbf{Bayes' formula}:
+$$ P(B_k \mid A) = \frac{P(A \mid B_k) \, P(B_k)}{\sum_i P(A \mid B_i) \, P(B_i)}. $$
+Conditional expectation with respect to a $\sigma$-algebra will generalize this weighted average
+over the elements of a partition.
+
+\subsection{Motivation}
+
+\begin{ejemplo}{Three coin tosses}{ejemplo_monedas}
+A coin is tossed 3 times. $\Omega$ has 8 elements $\{HHH, HHT, \dots, TTT\}$, and $\mathcal{F}
+= \mathcal{P}(\Omega)$. Define nested $\sigma$-algebras that ``gradually reveal''
+information:
+\begin{align*}
+\widetilde{\mathcal{F}}_0 &= \{\emptyset, \Omega\} && \text{(nothing is known)}, \\
+\widetilde{\mathcal{F}}_1 &= \sigma(A) = \{\emptyset, \Omega, A, A^c\} && \text{where } A
+= \{\text{the 1st toss is }H\}, \\
+\widetilde{\mathcal{F}}_2 &= \sigma(B_1, B_2, B_3, B_4) && \text{(according to the first 2 tosses)}, \\
+\widetilde{\mathcal{F}}_3 &= \mathcal{P}(\Omega) && \text{(everything is known)}.
+\end{align*}
+Each $\widetilde{\mathcal{F}}_k$ has more information than $\widetilde{\mathcal{F}}_{k-1}$.
+\end{ejemplo}
+
+\begin{definicion}{Filtration}{filtracion}
+A \emph{filtration} on $(\Omega, \mathcal{F}, P)$ is an increasing family of
+$\sigma$-algebras $(\widetilde{\mathcal{F}}_t)_{t \in T} \subseteq \mathcal{F}$:
+$$ s \le t \implies \widetilde{\mathcal{F}}_s \subseteq \widetilde{\mathcal{F}}_t. $$
+\end{definicion}
+
+\begin{ejemplo}{Conditional expectation in the three tosses}{}
+Continuing the previous example, let $X: \Omega \to \mathbb{R}$ with $X(\omega) = $ ``number of
+heads in $\omega$''. The expectation is
+$$ E(X) = 0 \cdot \tfrac{1}{8} + 1 \cdot \tfrac{3}{8} + 2 \cdot \tfrac{3}{8} + 3 \cdot \tfrac{1}{8}
+= \tfrac{3}{2}. $$
+If the 1\textsuperscript{st} toss has already been seen (that is, $\widetilde{\mathcal{F}}_1$ is known),
+one \emph{expects} on average:
+$$ E(X \mid \widetilde{\mathcal{F}}_1)(\omega) = \begin{cases}
+2, & \text{if the 1\textsuperscript{st} was $H$} \ (= 1 + E(\text{2 remaining tosses})), \\
+1, & \text{if the 1\textsuperscript{st} was $T$}.
+\end{cases} $$
+Note that $E(X \mid \widetilde{\mathcal{F}}_1)$ is an $\widetilde{\mathcal{F}}_1$-measurable
+\emph{random variable} (it takes constant values on $A$ and on $A^c$).
+\end{ejemplo}
+
+\obs In the example measurability can be verified by hand:
+$\{E(X \mid \widetilde{\mathcal{F}}_1) \ge 2\} = A \in \widetilde{\mathcal{F}}_1$, whereas
+$\{X \ge 2\} = \{HHH, HHT, HTH, THH\} \notin \widetilde{\mathcal{F}}_1$. The conditional
+expectation is $\widetilde{\mathcal{F}}_1$-measurable; $X$ is not.
+
+\obs (\emph{Definition on partitions.}) When $\mathcal{G} = \sigma(G_1, G_2, \dots)$ with
+$\{G_i\}$ a partition of $\Omega$ and $P(G_i) > 0$, there is an explicit formula. A
+$\mathcal{G}$-measurable variable is constant on each atom $G_i$, and the conditional expectation turns out
+to be the average of $X$ over the atom where $\omega$ falls:
+$$ E(X \mid \mathcal{G})(\omega) = \frac{1}{P(G_i)} \int_{G_i} X \, dP \qquad \text{if }
+\omega \in G_i. $$
+The characteristic property is checked: every $A \in \mathcal{G}$ is a union of atoms,
+$A = \bigcup_{i \in M} G_i$, and
+$$ \int_A E(X \mid \mathcal{G}) \, dP = \sum_{i \in M} \left( \frac{1}{P(G_i)} \int_{G_i} X \,
+dP \right) P(G_i) = \sum_{i \in M} \int_{G_i} X \, dP = \int_A X \, dP. $$
+The general definition (which follows) extends this to $\sigma$-algebras without atoms, where the
+local average can no longer be written by dividing by $P(G_i)$.
+
+\subsection{General definition}
+
+\begin{definicion}{Conditional expectation}{esp_cond}
+Let $X \in L^1(\Omega, \mathcal{F}, P)$ and let $\mathcal{G} \subseteq \mathcal{F}$ be a
+$\sigma$-algebra. The \emph{conditional expectation} of $X$ given $\mathcal{G}$, denoted
+$E(X \mid \mathcal{G})$, is the unique $\mathcal{G}$-measurable random variable (up to a.e.\ equality)
+such that
+$$ \int_A E(X \mid \mathcal{G}) \, dP = \int_A X \, dP \qquad \forall A \in \mathcal{G}. $$
+\end{definicion}
+
+\begin{teorema}{Existence (via Radon-Nikodym)}{exist_esp_cond}
+Under the previous hypotheses, $E(X \mid \mathcal{G})$ exists and is unique $P$-a.e.
+\end{teorema}
+
+\begin{proof}
+Suppose first $X \ge 0$. Define $\lambda: \mathcal{G} \to [0, \infty]$ by
+$$ \lambda(A) = \int_A X \, dP. $$
+$\lambda$ is a measure on $(\Omega, \mathcal{G})$. It is absolutely continuous with respect to
+$P|_{\mathcal{G}}$: if $P(A) = 0$, then $\int_A X \, dP = 0$. By Radon-Nikodym, there is
+$h \in L^1(\mathcal{G})$ with
+$$ \int_A X \, dP = \lambda(A) = \int_A h \, dP \qquad \forall A \in \mathcal{G}. $$
+That $h$ is $E(X \mid \mathcal{G})$. For general $X$, decompose $X = X^+ - X^-$ and subtract.
+\end{proof}
+
+\subsection{Properties}
+
+\begin{proposicion}{Properties of conditional expectation}{props_esp_cond}
+Let $X, Y \in L^1$ and $\mathcal{G}, \mathcal{H} \subseteq \mathcal{F}$ be $\sigma$-algebras.
+\begin{enumerate}
+    \item $E(aX + bY \mid \mathcal{G}) = a E(X \mid \mathcal{G}) + b E(Y \mid \mathcal{G})$.
+    \item If $Y$ is $\mathcal{G}$-measurable (and $XY \in L^1$),
+    $$ E(XY \mid \mathcal{G}) = Y \cdot E(X \mid \mathcal{G}). $$
+    \item If $X$ is independent of $\mathcal{G}$ (that is, $X^{-1}(B) \perp A$ for every $A \in
+    \mathcal{G}$ and Borel set $B$),
+    $$ E(X \mid \mathcal{G}) = E(X). $$
+    \item If $\mathcal{H} \subseteq \mathcal{G}$,
+    $$ E(E(X \mid \mathcal{G}) \mid \mathcal{H}) = E(X \mid \mathcal{H}). $$
+\end{enumerate}
+\end{proposicion}
+
+\begin{proof}\leavevmode\\
+\textit{(i)} For every $A \in \mathcal{G}$,
+\begin{align*}
+\int_A (aE(X \mid \mathcal{G}) + b E(Y \mid \mathcal{G})) \, dP
+&= a \int_A E(X \mid \mathcal{G}) \, dP + b \int_A E(Y \mid \mathcal{G}) \, dP \\
+&= a \int_A X \, dP + b \int_A Y \, dP = \int_A (aX + bY) \, dP.
+\end{align*}
+By uniqueness, $E(aX + bY \mid \mathcal{G}) = a E(X \mid \mathcal{G}) + b E(Y \mid \mathcal{G})$.
+
+\textit{(ii)} It is proved by increasing approximation.
+\begin{itemize}
+    \item For $Y = \mathbf{1}_C$ with $C \in \mathcal{G}$: for every $A \in \mathcal{G}$,
+    $A \cap C \in \mathcal{G}$, and
+    $$ \int_A \mathbf{1}_C \cdot E(X \mid \mathcal{G}) dP = \int_{A \cap C} E(X \mid \mathcal{G}) dP
+    = \int_{A \cap C} X dP = \int_A \mathbf{1}_C X dP. $$
+    By uniqueness, $E(\mathbf{1}_C X \mid \mathcal{G}) = \mathbf{1}_C E(X \mid \mathcal{G})$.
+
+    \item For $Y = \sum_i c_i \mathbf{1}_{C_i}$ simple and $\mathcal{G}$-measurable: by linearity from
+    (i).
+
+    \item For $Y \ge 0$ $\mathcal{G}$-measurable: take nonnegative simple $Y_n \nearrow Y$. If
+    $X \ge 0$, by monotone convergence $\int_A Y_n X dP \to \int_A YX dP$ and $\int_A Y_n
+    E(X \mid \mathcal{G}) dP \to \int_A Y E(X \mid \mathcal{G}) dP$. For general $X$ decompose
+    $X = X^+ - X^-$.
+
+    \item For general $Y$: $Y = Y^+ - Y^-$ and the previous step is applied to each part.
+\end{itemize}
+
+\textit{(iii)} For $A \in \mathcal{G}$, $\mathbf{1}_A$ and $X$ are independent,
+so that $E(\mathbf{1}_A X) = P(A) E(X)$:
+$$ \int_A X \, dP = E(\mathbf{1}_A X) = E(\mathbf{1}_A) E(X) = P(A) E(X) = \int_A E(X) \, dP. $$
+$E(X)$ is constant (in particular $\mathcal{G}$-measurable), so that by uniqueness
+$E(X \mid \mathcal{G}) = E(X)$.
+
+\textit{(iv)} Let $Z = E(X \mid \mathcal{G})$ and $W = E(X \mid \mathcal{H})$. For
+$A \in \mathcal{H} \subseteq \mathcal{G}$,
+$$ \int_A Z \, dP = \int_A X \, dP = \int_A W \, dP. $$
+Since $W$ is $\mathcal{H}$-measurable and the equality holds for every $A \in \mathcal{H}$, by uniqueness of
+$E(Z \mid \mathcal{H})$ one has $E(Z \mid \mathcal{H}) = W$, that is $E(E(X \mid \mathcal{G})
+\mid \mathcal{H}) = E(X \mid \mathcal{H})$.
+\end{proof}
+
+\subsection{Interpretation as a projection}
+
+When $X \in L^2$, conditional expectation admits a geometric characterization:
+
+\begin{teorema}{$E(\cdot \mid \mathcal{G})$ is an orthogonal projection}{proy_L2}
+For $X \in L^2(\mathcal{F})$, $E(X \mid \mathcal{G})$ is the orthogonal projection of $X$ onto the
+closed subspace $L^2(\mathcal{G}) \subseteq L^2(\mathcal{F})$. That is, $E(X \mid \mathcal{G})$
+is the unique $\mathcal{G}$-measurable element that minimizes
+$$ \|X - Y\|_{L^2}^2 = E((X - Y)^2) \qquad \text{among } Y \in L^2(\mathcal{G}). $$
+\end{teorema}
+
+\begin{proof}
+Since $L^2(\mathcal{G})$ is a closed subspace of $L^2(\mathcal{F})$ (Hilbert), there is the
+projection $\widehat{X}$ characterized by $X - \widehat{X} \perp L^2(\mathcal{G})$, that is
+$$ \int_\Omega (X - \widehat{X}) Y \, dP = 0 \qquad \forall Y \in L^2(\mathcal{G}). $$
+Taking $Y = \mathbf{1}_A$ with $A \in \mathcal{G}$, $\int_A X \, dP = \int_A \widehat{X} \, dP$, and
+since $\widehat{X}$ is $\mathcal{G}$-measurable, by uniqueness $\widehat{X} = E(X \mid \mathcal{G})$.
+\end{proof}
+
+\obs This explains the name ``best predictor of $X$ given the information $\mathcal{G}$'':
+$E(X \mid \mathcal{G})$ minimizes the mean squared error among all
+$\mathcal{G}$-measurable functions.
+
+\begin{ejemplo}{The three tosses as nested spaces}{ej_L2_anidados}
+In the example of the three tosses, $L^2(\widetilde{\mathcal{F}}_k)$ is the space of
+functions that are constant on the atoms of $\widetilde{\mathcal{F}}_k$; identifying each
+variable with the vector of its $8$ values $(X(HHH), X(HHT), X(HTH), X(HTT), X(THH), X(THT),
+X(TTH), X(TTT))$,
+$$ \underbrace{L^2(\widetilde{\mathcal{F}}_0)}_{\dim 1} \subset
+\underbrace{L^2(\widetilde{\mathcal{F}}_1)}_{\dim 2} \subset
+\underbrace{L^2(\widetilde{\mathcal{F}}_2)}_{\dim 4} \subset
+\underbrace{L^2(\widetilde{\mathcal{F}}_3)}_{\dim 8}. $$
+The variable $X$ = ``number of heads'' is the vector $(3, 2, 2, 1, 2, 1, 1, 0)$, and the
+successive orthogonal projections average over increasingly coarse atoms:
+$$ (3,2,2,1,2,1,1,0) \ \mapsto \ \left(\tfrac{5}{2}, \tfrac{5}{2}, \tfrac{3}{2}, \tfrac{3}{2},
+\tfrac{3}{2}, \tfrac{3}{2}, \tfrac{1}{2}, \tfrac{1}{2}\right) \ \mapsto \ (2,2,2,2,1,1,1,1)
+\ \mapsto \ \left(\tfrac{3}{2}, \dots, \tfrac{3}{2}\right), $$
+which are $E(X \mid \widetilde{\mathcal{F}}_2)$, $E(X \mid \widetilde{\mathcal{F}}_1)$ and
+$E(X \mid \widetilde{\mathcal{F}}_0) = E(X) = 3/2$. Composing projections
+($L^2(\mathcal{F}) \to L^2(\mathcal{G}) \to L^2(\mathcal{H})$ with $\mathcal{H} \subseteq
+\mathcal{G}$) is the geometric reading of the tower property.
+\end{ejemplo}
+
+\obs Another characterization, in terms of covariances: for $X \in L^2$,
+$E(X \mid \mathcal{G})$ is the unique $\mathcal{G}$-measurable variable with $E(E(X \mid
+\mathcal{G})) = E(X)$ such that
+$$ \mathrm{Cov}(E(X \mid \mathcal{G}), Y) = \mathrm{Cov}(X, Y) \qquad \text{for every } Y \in
+L^2(\mathcal{G}). $$
+Indeed, subtracting,
+$$ \mathrm{Cov}(X, Y) - \mathrm{Cov}(E(X \mid \mathcal{G}), Y) = \big\langle X - E(X \mid
+\mathcal{G}), \, Y - E(Y) \big\rangle = 0, $$
+because $X - E(X \mid \mathcal{G})$ is orthogonal to $L^2(\mathcal{G})$ and $Y - E(Y) \in
+L^2(\mathcal{G})$. Conditional expectation preserves all the correlation with what is observable.
+
+\subsection{Conditional Jensen inequality}
+
+\begin{teorema}{Conditional Jensen}{jensen_cond}
+Let $X \in L^1$ and $\varphi: \mathbb{R} \to \mathbb{R}$ convex with $\varphi(X) \in L^1$. Then
+$$ \varphi(E(X \mid \mathcal{G})) \le E(\varphi(X) \mid \mathcal{G}) \quad P\text{-a.e.} $$
+\end{teorema}
+
+\begin{proof}
+The idea is the same as in the integral Jensen inequality: by convexity there is a countable family of
+supporting lines $\varphi(y) = \sup_n (a_n y + b_n)$. For each fixed $n$, by linearity and monotonicity
+of conditional expectation,
+$$ E(\varphi(X) \mid \mathcal{G}) \ge E(a_n X + b_n \mid \mathcal{G}) = a_n E(X \mid \mathcal{G})
++ b_n. $$
+Taking the supremum over $n$, $E(\varphi(X) \mid \mathcal{G}) \ge \varphi(E(X \mid \mathcal{G}))$.
+\end{proof}
+
+\obs Particular cases: $\varphi(t) = |t|^p$ with $p \ge 1$ gives
+$$ |E(X \mid \mathcal{G})|^p \le E(|X|^p \mid \mathcal{G}), $$
+and taking expectations, $\|E(X \mid \mathcal{G})\|_p \le \|X\|_p$. Thus, the conditional expectation
+operator is \emph{contractive} on $L^p$.
+
+\newpage
+
+\section{Martingales}
+
+Martingales formalize the idea of a \emph{fair game}: the conditional expectation of the future
+value, knowing everything that has happened so far, coincides with the current value.
+
+\subsection{Adapted processes and stopping times}
+
+\begin{definicion}{Adapted process}{adaptado}
+Let $(\widetilde{\mathcal{F}}_t)_{t \in T}$ be a filtration. A stochastic process
+$(X_t)_{t \in T}$ is \emph{adapted} to the filtration if each $X_t$ is
+$\widetilde{\mathcal{F}}_t$-measurable.
+\end{definicion}
+
+\obs If no filtration is given, the \emph{natural filtration}
+$\widetilde{\mathcal{F}}_t = \sigma(X_s : s \le t)$ can be used, which is the smallest $\sigma$-algebra that
+makes $(X_s)_{s \le t}$ measurable. By construction, $(X_t)$ is adapted to its natural filtration.
+
+\begin{definicion}{Stopping time}{stopping}
+Let $(\widetilde{\mathcal{F}}_t)_{t \in T}$ be a filtration. A \emph{stopping time} is a random
+variable $\tau: \Omega \to T$ such that for every $t$,
+$$ \{\tau \le t\} \in \widetilde{\mathcal{F}}_t. $$
+In discrete time $T = \mathbb{N}$ it is equivalent to requiring $\{\tau = n\} \in \widetilde{\mathcal{F}}_n$.
+\end{definicion}
+
+\obs Intuitively, $\tau$ is an instant \emph{decidable with the information up to that moment}.
+No knowledge of the future is required.
+
+\begin{ejemplo}{Common stopping times}{}
+The following are stopping times: playing a fixed number of times ($\tau \equiv N$ constant), ``the first time
+the event $A$ appears'' ($\tau = \inf\{n : \omega_n \in A\}$), or ``the $k$-th visit to
+$A$''. ``The instant before the maximum'' is \emph{not} one, because knowing that the next step
+will be the maximum requires knowing the future. Moreover, $\max(\tau_1, \tau_2)$ and $\min(\tau_1,
+\tau_2)$ are stopping times: $\{\max(\tau_1, \tau_2) \le t\} = \{\tau_1 \le t\} \cap \{\tau_2 \le
+t\}$ and $\{\min(\tau_1, \tau_2) \le t\} = \{\tau_1 \le t\} \cup \{\tau_2 \le t\}$ are in
+$\widetilde{\mathcal{F}}_t$.
+\end{ejemplo}
+
+\begin{teorema}{Wald's Lemma}{wald}
+Let $(X_i)$ be i.i.d.\ and integrable, $S_n = \sum_{i=1}^n X_i$, and $\tau$ a stopping time
+with respect to $\widetilde{\mathcal{F}}_n = \sigma(X_1, \dots, X_n)$ with $E(\tau) < \infty$.
+Then
+$$ E(S_\tau) = E(X_1) \, E(\tau). $$
+\end{teorema}
+
+\begin{proof}
+Suppose first $X_i \ge 0$. Write
+$$ S_\tau = \sum_{n=1}^\infty X_n \, \mathbf{1}_{\{\tau \ge n\}}. $$
+The event $\{\tau \ge n\} = \{\tau \le n - 1\}^c \in \widetilde{\mathcal{F}}_{n-1}$ is
+independent of $X_n$, so that
+$E(X_n \mathbf{1}_{\{\tau \ge n\}}) = E(X_n) \, P(\tau \ge n) = E(X_1) \, P(\tau \ge n)$. By
+monotone convergence (the summands are nonnegative),
+$$ E(S_\tau) = \sum_{n=1}^\infty E(X_n \mathbf{1}_{\{\tau \ge n\}}) = E(X_1)
+\sum_{n=1}^\infty P(\tau \ge n) = E(X_1) \, E(\tau), $$
+using the identity $E(\tau) = \sum_{n \ge 1} P(\tau \ge n)$, valid for variables with values
+in $\mathbb{N}$ (it is seen by writing $\tau = \sum_{n \ge 1} \mathbf{1}_{\{\tau \ge n\}}$ and
+interchanging expectation and sum by monotone convergence). For general $X_i$ the above is applied
+to the parts $X_i^+$ and $X_i^-$ and subtracted; both expectations are finite since
+$E|X_1| < \infty$ and $E(\tau) < \infty$.
+\end{proof}
+
+\begin{ejemplo}{Compound dice}{ej_wald}
+A die is rolled and $N$ comes up; then $N$ dice are rolled and added: $S = X_1 + \cdots + X_N$. Here
+$N$ is independent of the $X_i$ (a particular case of stopping time), and
+$$ E(S) = E(X_1) \, E(N) = \frac{7}{2} \cdot \frac{7}{2} = \frac{49}{4} = 12.25, $$
+with no need to condition by hand on the $6$ values of $N$.
+\end{ejemplo}
+
+\subsection{Definition of a martingale}
+
+\begin{definicion}{Martingale}{martingala}
+A process $(X_n)_{n \in \mathbb{N}}$ adapted to $(\widetilde{\mathcal{F}}_n)$ is a
+\emph{martingale} if each $X_n$ is integrable and
+$$ E(X_n \mid \widetilde{\mathcal{F}}_{n-1}) = X_{n-1} \qquad \forall n \ge 1. $$
+\end{definicion}
+
+\obs Equivalently, $E(X_n \mid \widetilde{\mathcal{F}}_m) = X_m$ for every $m \le n$ (by
+the tower property).
+
+\obs As a consequence, $E(X_n) = E(X_0)$ for every $n$. All the variables of a martingale
+have the same expectation.
+
+\begin{definicion}{Submartingale and supermartingale}{submartingala}
+An adapted integrable process $(X_n)$ is a \emph{submartingale} if
+$$ E(X_n \mid \widetilde{\mathcal{F}}_{n-1}) \ge X_{n-1} \qquad \forall n \ge 1, $$
+and a \emph{supermartingale} if the opposite inequality holds,
+$E(X_n \mid \widetilde{\mathcal{F}}_{n-1}) \le X_{n-1}$.
+\end{definicion}
+
+\obs In the language of games: a martingale is a fair game, a submartingale one
+favorable to the player and a supermartingale an unfavorable one. A process is a martingale if and
+only if it is both a sub- and a supermartingale, and the expectations $E(X_n)$ turn out to be increasing in the
+sub case and decreasing in the super case. If $(X_n)$ is a martingale and $\varphi$ is convex with
+$\varphi(X_n)$ integrable, then $(\varphi(X_n))$ is a submartingale: by conditional Jensen
+(Theorem \ref{teo:jensen_cond}),
+$E(\varphi(X_n) \mid \widetilde{\mathcal{F}}_{n-1}) \ge
+\varphi(E(X_n \mid \widetilde{\mathcal{F}}_{n-1})) = \varphi(X_{n-1})$. In particular
+$(|X_n|)$ and $(|X_n|^p)$, with $p \ge 1$, are submartingales.
+
+\begin{ejemplo}{Constants and averages}{}
+If $X \in L^1$ and one defines $X_n = E(X \mid \widetilde{\mathcal{F}}_n)$, then $(X_n)$ is a
+martingale with respect to $(\widetilde{\mathcal{F}}_n)$. By the tower property,
+$E(X_n \mid \widetilde{\mathcal{F}}_{n-1}) = E(E(X \mid \widetilde{\mathcal{F}}_n) \mid
+\widetilde{\mathcal{F}}_{n-1}) = E(X \mid \widetilde{\mathcal{F}}_{n-1}) = X_{n-1}$.
+\end{ejemplo}
+
+\begin{ejemplo}{Symmetric random walk}{}
+Let $(X_n)_{n \ge 1}$ be i.i.d.\ with $E(X_n) = 0$ and $S_n = \sum_{k=1}^n X_k$ (with $S_0 = 0$).
+With respect to the natural filtration,
+$$ E(S_n \mid \widetilde{\mathcal{F}}_{n-1}) = E(S_{n-1} + X_n \mid \widetilde{\mathcal{F}}_{n-1})
+= S_{n-1} + E(X_n) = S_{n-1}, $$
+using that $S_{n-1}$ is $\widetilde{\mathcal{F}}_{n-1}$-measurable and $X_n$ is independent. Thus
+$(S_n)$ is a martingale.
+\end{ejemplo}
+
+\begin{ejemplo}{$S_n^2 - n$}{}
+With $X_k$ Rademacher ($\pm 1$ with probability $1/2$), $(S_n^2 - n)$ is a martingale. Computation:
+\begin{align*}
+E(S_n^2 \mid \widetilde{\mathcal{F}}_{n-1}) &= E((S_{n-1} + X_n)^2 \mid
+\widetilde{\mathcal{F}}_{n-1})
+= S_{n-1}^2 + 2 S_{n-1} E(X_n) + E(X_n^2) \\
+&= S_{n-1}^2 + 0 + 1.
+\end{align*}
+Subtracting $n$ from both sides, $E(S_n^2 - n \mid \widetilde{\mathcal{F}}_{n-1}) = S_{n-1}^2 - (n-1)$.
+\end{ejemplo}
+
+\subsection{Predictable strategy: martingale transform}
+
+\begin{definicion}{Predictable process}{previsible}
+$(H_n)_{n \ge 1}$ is \emph{predictable} (with respect to $(\widetilde{\mathcal{F}}_n)$) if each $H_n$ is
+$\widetilde{\mathcal{F}}_{n-1}$-measurable. Intuitively, $H_n$ is decided \emph{before} step $n$.
+\end{definicion}
+
+\begin{proposicion}{Martingale transform}{transformada}
+If $(X_n)$ is a martingale and $(H_n)$ is predictable and bounded, then
+$$ Y_n = \sum_{k=1}^n H_k (X_k - X_{k-1}) $$
+is a martingale.
+\end{proposicion}
+
+\begin{proof}
+$Y_n - Y_{n-1} = H_n (X_n - X_{n-1})$. Since $H_n$ is $\widetilde{\mathcal{F}}_{n-1}$-measurable,
+$$ E(Y_n - Y_{n-1} \mid \widetilde{\mathcal{F}}_{n-1}) = H_n E(X_n - X_{n-1} \mid
+\widetilde{\mathcal{F}}_{n-1}) = H_n \cdot 0 = 0. $$
+\end{proof}
+
+\obs The interpretation: in a fair game, no predictable strategy (one that only uses the
+past) can turn the game into a favorable one. This justifies mathematically that ``there is no
+infallible system'' in a fair game.
+
+\obs A famous strategy: \emph{double or nothing} (the classical martingale, where the name comes from).
+$H_n = 2^{n-1}$ if $X_{k-1} = -k$ for every $k < n$, and $H_n = 0$ if the player has already won. The accumulated
+gain is 1 when the player finally wins, but ruin arrives earlier with significant probability.
+
+\newpage
+
+\section{Doob's theorems}
+
+\subsection{Optional Stopping}
+
+\begin{teorema}{Optional Stopping (bounded version)}{optional_stopping}
+Let $(X_n)$ be a martingale and $\tau$ a stopping time with $\tau \le M$ bounded. Then
+$$ E(X_\tau) = E(X_0). $$
+\end{teorema}
+
+\begin{proof}
+Define $X_n^\tau = X_{\tau \wedge n}$, the process ``stopped'' at $\tau$. It is verified that
+$(X_n^\tau)$ is a martingale (transform by the predictable strategy
+$H_n = \mathbf{1}_{\tau \ge n}$,
+which is $\widetilde{\mathcal{F}}_{n-1}$-measurable because $\{\tau \ge n\} = \{\tau \le n-1\}^c$).
+Thus $E(X_\tau) = E(X_M^\tau) = E(X_0^\tau) = E(X_0)$.
+\end{proof}
+
+\begin{teorema}{Optional Stopping (uniformly integrable martingale)}{optional_stopping_UI}
+If $(X_n)$ is a uniformly integrable martingale (there is $X_\infty$ with $X_n \to X_\infty$ in
+$L^1$) and $\tau$ is a stopping time that is finite a.e., then
+$$ E(X_\tau) = E(X_0). $$
+\end{teorema}
+
+\begin{proof}
+Let $\tau_n = \tau \wedge n$, which is a bounded stopping time. By the bounded version,
+$E(X_{\tau_n}) = E(X_0)$ for every $n$.
+
+Since $\tau < \infty$ a.e., $X_{\tau_n} \to X_\tau$ a.e.\ (eventually $\tau_n = \tau$). It remains
+to see that $\int X_{\tau_n} dP \to \int X_\tau dP$. Write
+$$ X_{\tau_n} = X_\tau \mathbf{1}_{\tau \le n} + X_n \mathbf{1}_{\tau > n}. $$
+Since $(X_n)$ is uniformly integrable, in particular $\{X_n \mathbf{1}_{\tau > n}\}$ is UI (their
+absolute values are dominated by those of $(X_n)$), and since $P(\tau > n) \to 0$, that term
+tends to zero in $L^1$. The first term $X_\tau \mathbf{1}_{\tau \le n}$ converges to $X_\tau$ in
+$L^1$ by dominated convergence (with dominating function $|X_\tau| \in L^1$, which also follows from UI:
+by Fatou and UI, $E|X_\tau| \le \varliminf E|X_{\tau_n}| < \infty$).
+
+Letting $n \to \infty$, $E(X_0) = E(X_{\tau_n}) \to E(X_\tau)$.
+\end{proof}
+
+\subsection{Doob's inequality}
+
+\begin{teorema}{Doob's maximal inequality}{doob_ineq}
+Let $(X_n)$ be a martingale with $X_n \ge 0$, and $c > 0$. Then
+$$ P\left(\max_{k \le n} X_k \ge c\right) \le \frac{E(X_n)}{c}. $$
+\end{teorema}
+
+\begin{proof}
+Define the stopping time
+$$ \tau = \min\{m : \max_{k \le m} X_k \ge c\} \wedge n. $$
+By construction $\tau \le n$ and $\{\tau < n\} = \{\max_k X_k \ge c\}$ (if the maximum reaches $c$
+before $n$). By Optional Stopping,
+$$ E(X_n) = E(X_\tau) = E(X_\tau \mathbf{1}_{\tau < n}) + E(X_\tau \mathbf{1}_{\tau = n})
+\ge c \cdot P(\tau < n), $$
+because on $\{\tau < n\}$ one has $X_\tau \ge c$ and $X_\tau \mathbf{1}_{\tau = n} \ge 0$. Solving,
+$P(\max X_k \ge c) = P(\tau < n) \le E(X_n)/c$.
+\end{proof}
+
+\begin{corolario}{Gaussian tail of the supremum of Brownian motion}{cola_browniano}
+Let $(W_t)$ be a Brownian motion. For all $a, T > 0$,
+$$ P\!\left(\sup_{t \le T} W_t \ge a\right) \le e^{-a^2/(2T)}. $$
+\end{corolario}
+
+\begin{proof}
+Fix $\lambda > 0$. If $Z \sim \mathcal{N}(0, t)$, completing the square one computes
+$E(e^{\lambda Z}) = e^{\lambda^2 t/2}$, so that the process
+$$ M_t = e^{\lambda W_t - \lambda^2 t / 2} $$
+is a positive martingale: for $s < t$, since $W_t - W_s \sim \mathcal{N}(0, t - s)$ is
+independent of the past,
+$$ E(M_t \mid \mathcal{F}_s) = M_s \, e^{-\lambda^2 (t - s)/2} \, E\big(e^{\lambda (W_t -
+W_s)}\big) = M_s \, e^{-\lambda^2 (t-s)/2} \, e^{\lambda^2 (t-s)/2} = M_s. $$
+Since $e^x$ is increasing and $e^{-\lambda^2 t/2} \ge e^{-\lambda^2 T/2}$ for $t \le T$, the
+inclusion of events
+$$ \left\{ \sup_{t \le T} W_t \ge a \right\} \subseteq \left\{ \sup_{t \le T} M_t \ge
+e^{\lambda a - \lambda^2 T/2} \right\} $$
+holds, and Doob's maximal inequality applied to the positive martingale $(M_t)$ (the
+continuous version is obtained from the discrete one by taking suprema over dyadic times and using the
+continuity of the paths), with $E(M_T) = E(M_0) = 1$, gives
+$$ P\!\left(\sup_{t \le T} W_t \ge a\right) \le \frac{E(M_T)}{e^{\lambda a - \lambda^2 T/2}} =
+e^{\frac{\lambda^2 T}{2} - \lambda a}. $$
+The right-hand side is minimized at $\lambda = a/T$ (setting the derivative $\lambda T - a$ of the
+exponent to zero), and substituting yields $e^{a^2/(2T) - a^2/T} = e^{-a^2/(2T)}$.
+\end{proof}
+
+\subsection{Convergence of martingales}
+
+\begin{teorema}{Martingale convergence (Doob)}{conv_martingalas}
+Let $(X_n)$ be a martingale with $\sup_n E|X_n| < \infty$ (bounded in $L^1$). Then there is
+$X \in L^1$ with $X_n \to X$ almost everywhere.
+\end{teorema}
+
+\begin{proof}
+\emph{Upcrossings} technique. Given $a < b$, define the number of complete upcrossings
+$U_n^{[a,b]}(\omega)$ as the number of times that $(X_k(\omega))_{k=0}^n$ crosses from below
+$a$ to above $b$. More precisely, let $\tau_0 = 0$ and, recursively,
+$$ \tau_{2j+1} = \min\{k > \tau_{2j} : X_k < a\}, \qquad \tau_{2j+2} = \min\{k > \tau_{2j+1} : X_k
+> b\}, $$
+with the convention $\min \emptyset = \infty$. Then $U_n^{[a,b]} = \max\{j : \tau_{2j} \le n\}$.
+
+\textit{Doob's upcrossing inequality.} For any martingale $(X_n)$,
+$$ (b - a) \, E(U_n^{[a,b]}) \le E((X_n - a)^+). $$
+Idea of the proof: the \emph{strategy} $H_k = \mathbf{1}_{\tau_{2j+1} < k \le \tau_{2j+2} \text{
+for some } j}$ (buy after falling below $a$, sell after rising above $b$) is
+predictable and bounded. The accumulated gain $Y_n = \sum_{k=1}^n H_k(X_k - X_{k-1})$ is
+nonnegative because each complete upcrossing from $a$ to $b$ contributes at least $b - a$; more
+formally, $Y_n \ge (b - a) U_n^{[a,b]} - (X_n - a)^+$ (the remaining term absorbs a
+possible incomplete upcrossing at the end). Since $Y_n$ is a martingale (transform by a predictable process),
+$E(Y_n) = 0$, and one gets $(b - a) E(U_n) \le E((X_n - a)^+)$.
+
+\textit{Conclusion.} If $\sup_n E|X_n| < \infty$, then $E((X_n - a)^+) \le |a| + E|X_n|$
+is
+uniformly bounded, so that
+$$ E(U_\infty^{[a,b]}) = \lim_n E(U_n^{[a,b]}) \le \frac{|a| + \sup_n E|X_n|}{b - a} < \infty. $$
+In particular, $U_\infty^{[a,b]} < \infty$ almost everywhere.
+
+Let $\Lambda_{a,b} = \{\omega : \varliminf X_n(\omega) < a < b < \varlimsup X_n(\omega)\}$.
+On $\Lambda_{a,b}$, the sequence $X_n(\omega)$ crosses the interval $[a, b]$ infinitely many times, so
+that $U_\infty^{[a,b]}(\omega) = \infty$. Hence $P(\Lambda_{a,b}) = 0$.
+
+Taking a countable union over rationals $a < b$,
+$$ P\!\left(\bigcup_{a < b \in \mathbb{Q}} \Lambda_{a,b}\right) = 0. $$
+Outside that null set, $\varliminf X_n = \varlimsup X_n$, that is, the limit
+$X = \lim X_n$ exists in $\mathbb{R} \cup \{\pm\infty\}$. By Fatou's Lemma applied to $|X_n|$,
+$E|X| \le \varliminf E|X_n| \le \sup E|X_n| < \infty$, so that $X \in L^1$ (in particular,
+finite a.e.).
+\end{proof}
+
+\obs The convergence in the theorem is a.e., \emph{not} in $L^1$. Counterexample: let $(Z_k)$ be
+i.i.d.\ with $P(Z_k = 0) = P(Z_k = 2) = 1/2$ (so that $E(Z_k) = 1$) and $M_n = \prod_{k=1}^n Z_k$.
+Then $(M_n)$ is a martingale with respect to $\widetilde{\mathcal{F}}_n = \sigma(Z_1, \dots,
+Z_n)$:
+$$ E(M_{n+1} \mid \widetilde{\mathcal{F}}_n) = M_n \, E(Z_{n+1} \mid
+\widetilde{\mathcal{F}}_n) = M_n \, E(Z_{n+1}) = M_n, $$
+and $E(M_n) = 1$ for every $n$, with $\sup_n E|M_n| = 1 < \infty$. By the theorem, $M_n$ converges
+a.e., and the limit is $0$: as soon as a $Z_k = 0$ comes up (which happens with probability $1$),
+the product vanishes forever. But then
+$$ E|M_n - 0| = E(M_n) = 1 \not\to 0: $$
+there is no convergence in $L^1$, and the expectation is lost in the limit
+($1 = \lim_n E(M_n) \ne E(\lim_n M_n) = 0$).
+
+\begin{teorema}{$L^p$ convergence, $p > 1$}{conv_Lp_martingalas}
+If $\sup_n E|X_n|^p < \infty$ with $p > 1$, then $X_n \to X$ also in $L^p$, and
+$X_n = E(X \mid \widetilde{\mathcal{F}}_n)$.
+\end{teorema}
+
+\begin{proof}
+Since $L^p \subseteq L^1$ in finite measure ($P$ is a probability), $\sup E|X_n| < \infty$ and by the
+previous theorem $X_n \to X$ a.e.\ with $X \in L^1$.
+
+\textit{Uniform bound in $L^p$ via Doob's inequality.} Applying Doob's maximal inequality to
+the positive martingale $|X_n|^p$ (which is a submartingale by conditional Jensen with
+$\varphi(t) = |t|^p$), one obtains the \emph{$L^p$ maximal inequality}:
+$$ E\!\left(\sup_{k \le n} |X_k|^p\right) \le \left(\frac{p}{p - 1}\right)^p \sup_{k \le n}
+E|X_k|^p. $$
+Letting $n \to \infty$ and by monotone convergence, $E(\sup_n |X_n|^p) \le (p/(p-1))^p \sup_n
+E|X_n|^p < \infty$. Call $M = \sup_n |X_n|$, which satisfies $M \in L^p$.
+
+\textit{Convergence in $L^p$.} One has $|X_n - X|^p \le 2^p (|X_n|^p + |X|^p) \le 2^p (M^p + M^p)
+= 2^{p+1} M^p$ (because $|X| \le M$ in the limit). Since $X_n \to X$ a.e.\ and $|X_n - X|^p \le
+2^{p+1} M^p \in L^1$, by dominated convergence $E|X_n - X|^p \to 0$.
+
+\textit{Identity $X_n = E(X \mid \widetilde{\mathcal{F}}_n)$.} For $A \in
+\widetilde{\mathcal{F}}_n$ and $m \ge n$, by the martingale property $\int_A X_n dP = \int_A X_m
+dP$. By convergence in $L^1$, $\int_A X_m dP \to \int_A X dP$. Hence $\int_A X_n dP = \int_A X
+dP$, and since $X_n$ is $\widetilde{\mathcal{F}}_n$-measurable, by uniqueness $X_n = E(X \mid
+\widetilde{\mathcal{F}}_n)$.
+\end{proof}
+
+\newpage
+
+\section{Brownian Motion}
+
+The passage from discrete to continuous time leads to \emph{Brownian motion}, the limit of
+rescaled random walks. Before the axiomatic definition, the random walk is studied in
+some detail: its explicit computations are what motivate the properties of the limit
+process.
+
+\subsection{The simple random walk}
+
+Let $(X_n)_{n \ge 1}$ be i.i.d.\ with $P(X_n = 1) = P(X_n = -1) = 1/2$, and $S_n = X_1 + \cdots +
+X_n$ (with $S_0 = 0$): a particle starts at the origin and at each step moves one unit to the
+right or to the left according to a fair coin. The basic computations: $E(X_i) = 0$ and
+$\mathrm{Var}(X_i) = E(X_i^2) = 1$, whence
+$$ E(S_n) = 0, \qquad \mathrm{Var}(S_n) = E(S_n^2) = \sum_{i,j} E(X_i X_j) = \sum_{i=1}^n
+E(X_i^2) = n, $$
+using that for $i \ne j$, $E(X_i X_j) = E(X_i) E(X_j) = 0$ by independence. Moreover, for
+$m < n$, $S_n - S_m = \sum_{i = m+1}^n X_i$ is another random walk, independent of
+$S_1, \dots, S_m$, with $\mathrm{Var}(S_n - S_m) = n - m$.
+
+\begin{ejemplo}{Distribution of $S_n$ and returns to the origin}{ej_retorno_origen}
+After $n$ steps, $S_n = a$ requires $k$ steps $+1$ and $n - k$ steps $-1$ with $a = k - (n - k) =
+2k - n$; in particular $a$ and $n$ have the same parity, and $k = (n + a)/2$. Of the $2^n$
+equiprobable paths, the favorable ones are the choices of where to place the $+1$ steps:
+$$ P(S_n = a) = \frac{1}{2^n} \binom{n}{\frac{n+a}{2}}. $$
+In particular, the probability of being at the origin after $2m$ steps is $P(S_{2m} = 0) =
+\binom{2m}{m} / 2^{2m}$, which with Stirling's formula $n! \approx n^n e^{-n} \sqrt{2 \pi n}$
+is estimated as
+$$ P(S_{2m} = 0) = \frac{(2m)!}{(m!)^2 \, 2^{2m}} \approx
+\frac{(2m)^{2m} e^{-2m} \sqrt{4 \pi m}}{m^{2m} e^{-m} \cdot m^{m} e^{-m} \cdot (2 \pi m) \cdot
+2^{2m}} \cdot \frac{m^{m}}{m^{m}} = \frac{\sqrt{4 \pi m}}{2 \pi m} = \frac{1}{\sqrt{\pi m}}. $$
+It decays, but very slowly: if $V = \sum_{m \ge 1} \mathbf{1}_{\{S_{2m} = 0\}}$ is the number
+of returns to the origin,
+$$ E(V) = \sum_{m=1}^\infty P(S_{2m} = 0) \approx \sum_{m=1}^\infty \frac{1}{\sqrt{\pi m}} =
+\infty. $$
+(Borel-Cantelli (II) is not applicable here: the events $\{S_{2m} = 0\}$ are not
+independent.)
+\end{ejemplo}
+
+\obs $E(V) = \infty$ does not by itself imply $V = \infty$ a.e.: a variable can have
+infinite expectation and be finite with probability $1$. This is the \emph{St.\ Petersburg
+paradox}: a coin is tossed until the first tails, and if $k$ heads came up before, one wins
+$2^k$ pesos; the expected gain is
+$$ E(G) = \sum_{k=0}^\infty 2^k \cdot \frac{1}{2^{k+1}} = \sum_{k=0}^\infty \frac{1}{2} =
+\infty, $$
+but $G$ is finite with probability $1$. For the random walk the correct argument is a different one. Let
+$\rho$ be the probability of ever returning to the origin. Each time the walk returns, the
+process starts afresh (the later steps are independent and have the same
+distribution), so that $P(V \ge k) = \rho^k$. If $\rho < 1$,
+$$ E(V) = \sum_{k \ge 1} P(V \ge k) = \sum_{k \ge 1} \rho^k = \frac{\rho}{1 - \rho} < \infty, $$
+contradicting $E(V) = \infty$. Therefore $\rho = 1$: the random walk returns to the origin (and,
+iterating, visits it \emph{infinitely many times}) with probability $1$.
+
+\begin{ejemplo}{The Galton board and the Gaussian bell curve}{ej_galton}
+On a Galton board, small balls fall through $n$ levels of pegs; each ball performs a random
+walk of $n$ steps, and the column over position $a$ accumulates a fraction of balls
+proportional to $\binom{n}{(n+a)/2}$. Measuring each column in units of the central column,
+the height over $a$ is
+$$ H_a = \binom{n}{\frac{n+a}{2}} \Big/ \binom{n}{\frac{n}{2}} =
+\frac{(n/2)! \, (n/2)!}{\left(\frac{n+a}{2}\right)! \left(\frac{n-a}{2}\right)!}. $$
+Write $\rho = n/2$ and $c = a/2$; cancelling factorials and taking logarithms,
+$$ H_a = \frac{(\rho - c + 1) \cdots \rho}{(\rho + 1) \cdots (\rho + c)}, \quad
+\ln H_a = \sum_{k = \rho - c + 1}^{\rho} \ln k - \sum_{k = \rho + 1}^{\rho + c} \ln k
+\approx \int_{\rho - c}^{\rho} \ln x \, dx - \int_{\rho}^{\rho + c} \ln x \, dx. $$
+With the antiderivative $x \ln x - x$,
+$$ \ln H_a \approx 2 \rho \ln \rho - (\rho - c) \ln(\rho - c) - (\rho + c) \ln(\rho + c). $$
+The Taylor polynomial of order $2$ of $f(x) = x \ln x$ at $\rho$ (with $f'(x) = \ln x + 1$ and
+$f''(x) = 1/x$) gives $f(\rho \pm c) \approx \rho \ln \rho \pm (\ln \rho + 1) c +
+\frac{c^2}{2\rho}$; on substituting, the terms of order $0$ and $1$ cancel and one gets
+$$ \ln H_a \approx -\frac{c^2}{\rho} = -\frac{a^2/4}{n/2} = -\frac{a^2}{2n}
+= -\frac{1}{2} \left( \frac{a}{\sqrt{n}} \right)^{\!2}, \quad \text{that is} \quad
+H_a \approx e^{-x^2/2} \quad \text{with } x = \frac{a}{\sqrt{n}}. $$
+Rescaling the horizontal axis by $\sqrt{n}$, the profiles fit the Gaussian bell curve:
+this is the \emph{de Moivre-Laplace} theorem,
+$$ \frac{S_n}{\sqrt{n}} \xrightarrow{d} \mathcal{N}(0, 1), \qquad
+P\!\left( \alpha \le \frac{S_n}{\sqrt{n}} \le \beta \right) \approx \frac{1}{\sqrt{2 \pi}}
+\int_\alpha^\beta e^{-x^2/2} \, dx. $$
+\end{ejemplo}
+
+\subsection{From the random walk to Brownian motion}
+
+Heuristically, Brownian motion is a random walk with time steps of length
+$\Delta t = 1/N$ and space steps of length $\epsilon$, in the limit $N \to \infty$: one
+defines $W_{n/N} = \epsilon S_n$ and normalizes by requiring $\mathrm{Var}(W_1) = 1$. Since
+$N$ steps are taken to reach $t = 1$,
+$$ 1 = E(W_1^2) = \epsilon^2 E(S_N^2) = \epsilon^2 N \implies \epsilon = \frac{1}{\sqrt{N}}. $$
+With that choice, for $t = n/N$,
+$$ W_t = \frac{S_n}{\sqrt{N}} = \frac{S_n}{\sqrt{n}} \cdot \sqrt{\frac{n}{N}} =
+\frac{S_n}{\sqrt{n}} \cdot \sqrt{t}, $$
+and since $S_n / \sqrt{n} \sim \mathcal{N}(0, 1)$ for large $n$ (de Moivre-Laplace), one expects
+$W_t \sim \mathcal{N}(0, t)$. From $\mathrm{Var}(S_n - S_m) = n - m$ and from the independence of the
+stretches of the random walk one also expects $W_t - W_s \sim \mathcal{N}(0, t - s)$ and independent
+increments. These properties, together with the continuity of the paths, are
+exactly the definition.
+
+\subsection{Definition and properties}
+
+\begin{definicion}{Brownian Motion}{browniano}
+A \emph{Brownian motion} (Wiener process) is a stochastic process
+$(W_t)_{t \ge 0}$ that satisfies:
+\begin{enumerate}
+    \item $W_0 = 0$ almost everywhere.
+    \item For $0 \le s < t$, $W_t - W_s \sim \mathcal{N}(0, t - s)$.
+    \item Independent increments: for $0 \le t_0 < t_1 < \cdots < t_n$, the variables
+    $W_{t_1} - W_{t_0}, W_{t_2} - W_{t_1}, \dots, W_{t_n} - W_{t_{n-1}}$ are independent.
+    \item $t \mapsto W_t$ is continuous almost everywhere.
+\end{enumerate}
+\end{definicion}
+
+\obs Existence (Wiener, 1923): such a process exists. The construction uses, for example,
+Kolmogorov's extension or a random series expansion.
+
+\obs The paths $t \mapsto W_t(\omega)$ are continuous but, almost surely, they are not
+differentiable at any point. The heuristics for both facts lies in the scale of the
+increments: since $\mathrm{Var}(W_{t+h} - W_t) = h$, the typical increment is
+$|W_{t+h} - W_t| \approx \sqrt{h}$, which tends to $0$ (continuity) but whose difference
+quotient $\sqrt{h}/h = 1/\sqrt{h} \to \infty$ (non-differentiability). Moreover: a derivative at
+$t_0$ could be estimated with past increments ($r < t_0$) and would determine the nearby future
+increments, but $W_s - W_{t_0}$ is \emph{independent} of $\{W_r : r \le t_0\}$: the
+process cannot remember a slope. This is what makes classical calculus fail and
+forces the construction of the Itô integral.
+
+\obs Transformations that preserve Brownian motion: if $(W_t)$ is a Brownian motion, so are
+\begin{gather*}
+(c \, W_{t/c^2})_{t \ge 0} \quad \text{(self-similarity)}, \qquad
+(W_{t+s} - W_s)_{t \ge 0} \quad \text{(restart)}, \\
+(t \, W_{1/t})_{t \ge 0} \quad \text{(time inversion)}.
+\end{gather*}
+With drift and scale, $(\mu t + \sigma W_t)$ is called \emph{Brownian motion with drift} and
+$(C e^{\mu t + \sigma W_t})$ \emph{geometric Brownian motion}.
+
+\subsection{Quadratic variation}
+
+\begin{teorema}{Quadratic variation of Brownian motion}{var_cuad}
+Let $a = t_0 < t_1 < \cdots < t_m = b$ be a partition of $[a, b]$ with mesh
+$\delta = \max_k (t_{k+1} - t_k)$. Define
+$$ Q_m = \sum_{k=1}^m (W_{t_k} - W_{t_{k-1}})^2. $$
+Then $Q_m \xrightarrow{L^2} b - a$ as $\delta \to 0$.
+\end{teorema}
+
+\begin{proof}
+Call $\Delta_k = W_{t_k} - W_{t_{k-1}}$ and $\Delta t_k = t_k - t_{k-1}$. By definition of
+Brownian motion, $\Delta_k \sim \mathcal{N}(0, \Delta t_k)$ and the $\Delta_k$ are independent.
+
+\textit{Expectation.} $E(\Delta_k^2) = \mathrm{Var}(\Delta_k) = \Delta t_k$, so that
+$$ E(Q_m) = \sum_{k=1}^m E(\Delta_k^2) = \sum_{k=1}^m \Delta t_k = b - a. $$
+
+\textit{Variance.} By independence of the $\Delta_k^2$,
+$$ \mathrm{Var}(Q_m) = \sum_{k=1}^m \mathrm{Var}(\Delta_k^2). $$
+Compute $\mathrm{Var}(\Delta_k^2)$: if $Z \sim \mathcal{N}(0, \sigma^2)$, then
+$Z^2 = \sigma^2
+\xi$ with $\xi \sim \chi^2_1$. Since $E(\xi^2) = 3$ (fourth moment of the standard normal) and
+$E(\xi) = 1$, $\mathrm{Var}(\xi) = 2$. Hence $\mathrm{Var}(Z^2) = \sigma^4 \cdot 2 = 2 \sigma^4$, and
+in this case $\mathrm{Var}(\Delta_k^2) = 2 (\Delta t_k)^2$.
+
+Substituting,
+$$ \mathrm{Var}(Q_m) = 2 \sum_{k=1}^m (\Delta t_k)^2 \le 2 \delta \sum_{k=1}^m \Delta t_k =
+2 \delta (b - a) \xrightarrow{\delta \to 0} 0. $$
+
+\textit{Conclusion.} $E((Q_m - (b - a))^2) = \mathrm{Var}(Q_m) \to 0$, that is $Q_m \to b - a$
+in $L^2$.
+\end{proof}
+
+\obs Heuristically, this is written as $(dW)^2 = dt$. In the limit one also has
+$$ \sum (\Delta t)^2 \to 0, \qquad \sum \Delta t \, \Delta W \to 0, \qquad \sum (\Delta W)^2 \to b
+- a, $$
+which are the rules used when constructing the Itô integral and the corresponding lemma.
+
+\newpage
+
+\section{Itô Integral}
+
+One would like to define $\int_a^b X_t \, dW_t$ following Riemann: approximate by sums
+$\sum X_{\xi_k} (W_{t_{k+1}} - W_{t_k})$ with $\xi_k \in [t_k, t_{k+1}]$. But unlike the
+classical case, the choice of $\xi_k$ \emph{does} matter, because the paths of Brownian motion
+do not have bounded variation. The choice that gives an integral with good martingale properties
+is the \emph{left endpoint}: $\xi_k = t_k$.
+
+\begin{definicion}{Itô Integral}{ito_integral}
+Let $(X_t)_{t \in [a, b]}$ be an adapted process with $X_\cdot \in L^2([a, b] \times \Omega)$
+(sufficiently integrable).
+For a partition $a = t_0 < t_1 < \cdots < t_m = b$ define the \emph{left-endpoint Riemann
+sum}
+$$ R_m = \sum_{k=1}^m X_{t_{k-1}} (W_{t_k} - W_{t_{k-1}}). $$
+The Itô integral is defined as
+$$ \int_a^b X \, dW = \lim_{\delta \to 0} R_m, $$
+in $L^2(\Omega)$. The limit exists and does not depend on the sequence of partitions.
+\end{definicion}
+
+\obs The choice of the left endpoint is essential. Taking $\xi_k = t_k$ (right endpoint) or
+$\xi_k = (t_{k-1} + t_k)/2$ (midpoint, Stratonovich) yields \emph{different} integrals.
+Itô's is the only one that keeps the martingale property. The difference is
+computed directly for $\int_a^b W \, dW$: if $B_m$ uses the right endpoint and $A_m$ the
+left one,
+$$ B_m - A_m = \sum_k \left( W_{t_k} - W_{t_{k-1}} \right) \left( W_{t_k} - W_{t_{k-1}} \right)
+= Q_m \xrightarrow{L^2} b - a \ne 0 $$
+by the quadratic variation: both limits exist, but they differ by exactly $b - a$.
+
+\subsection{Properties of the Itô integral}
+
+\begin{proposicion}{Properties}{props_ito}
+Let $X, Y$ be adapted processes that are Itô integrable, and $\alpha, \beta \in \mathbb{R}$:
+\begin{enumerate}
+    \item $\int_a^b (\alpha X + \beta Y) dW = \alpha \int_a^b X \, dW + \beta \int_a^b Y \, dW$.
+    \item $\displaystyle E\!\left[\int_a^b X \, dW\right] = 0$.
+    \item $\displaystyle E\!\left[\left(\int_a^b X \, dW\right)^2 \right] = E\!\left[\int_a^b X^2
+    \, dt\right]$.
+    \item $\displaystyle E\!\left[\int_a^b X \, dW \cdot \int_a^b Y \, dW\right] =
+    E\!\left[\int_a^b XY \, dt\right]$.
+\end{enumerate}
+\end{proposicion}
+
+\begin{proof}
+(ii) and (iii) are proved at the level of the left-endpoint Riemann sums (the
+general case follows by passing to the limit in $L^2$). Write $R = \sum_k X_{t_{k-1}} \Delta W_k$ with
+$\Delta W_k = W_{t_k} - W_{t_{k-1}}$ and $\Delta t_k = t_k - t_{k-1}$.
+
+\textit{(ii)} Since $X_{t_{k-1}}$ is $\mathcal{F}_{t_{k-1}}$-measurable (the process is adapted) and
+$\Delta W_k$ is independent of $\mathcal{F}_{t_{k-1}}$ with mean $0$,
+$$ E(X_{t_{k-1}} \Delta W_k) = E(X_{t_{k-1}}) \, E(\Delta W_k) = 0, $$
+and summing, $E(R) = 0$.
+
+\textit{(iii)} Expanding the square,
+$$ E(R^2) = \sum_k E\big(X_{t_{k-1}}^2 (\Delta W_k)^2\big) + 2 \sum_{j < k}
+E\big(X_{t_{j-1}} \Delta W_j \, X_{t_{k-1}} \Delta W_k\big). $$
+In the cross terms with $j < k$, the factor $X_{t_{j-1}} \Delta W_j X_{t_{k-1}}$ is
+$\mathcal{F}_{t_{k-1}}$-measurable, and $\Delta W_k$ is independent of it and centered: each
+cross term vanishes. In the diagonal ones, $(\Delta W_k)^2$ is independent of
+$X_{t_{k-1}}^2$ and $E((\Delta W_k)^2) = \Delta t_k$, whence
+$$ E(R^2) = \sum_k E(X_{t_{k-1}}^2) \, \Delta t_k = E\!\left( \sum_k X_{t_{k-1}}^2 \, \Delta
+t_k \right) \xrightarrow{\delta \to 0} E\!\left( \int_a^b X^2 \, dt \right). $$
+Property (i) is the linearity of the Riemann sums, and (iv) follows from (iii) by
+polarization, $XY = \tfrac{1}{4} \left[ (X + Y)^2 - (X - Y)^2 \right]$.
+\end{proof}
+
+\obs The Itô isometry is the formal change $(dW)^2 \mapsto dt$ mentioned earlier: the square
+of the stochastic integral translates into the classical integral of $X^2$ with respect to time.
+
+\subsection{Itô's Lemma}
+
+The change of variables in stochastic calculus is not the classical one: an additional
+term appears due to $(dW)^2 = dt$.
+
+\obs (\emph{Orders of magnitude}.) The reason why the second-order term survives is seen by
+comparing, over a partition of $[a, b]$ with mesh $\delta$, the size of the four
+differentials that appear when expanding by Taylor:
+\begin{align*}
+dt &: & \sum_k (t_k - t_{k-1}) &= b - a, \\
+(dW)^2 &: & \sum_k (W_{t_k} - W_{t_{k-1}})^2 &\xrightarrow{L^2} b - a
+&& \text{(quadratic variation)}, \\
+(dt)^2 &: & \sum_k (t_k - t_{k-1})^2 &\le \delta \, (b - a) \longrightarrow 0, \\
+dt \, dW &: & \sum_k |W_{t_k} - W_{t_{k-1}}| \, (t_k - t_{k-1}) &\approx \sqrt{\delta} \,
+(b - a) \longrightarrow 0,
+\end{align*}
+where the last line used that $E((W_{t_k} - W_{t_{k-1}})^2) = t_k - t_{k-1}$, so that
+the typical increment is $|W_{t_k} - W_{t_{k-1}}| \approx \sqrt{t_k - t_{k-1}} \le \sqrt{\delta}$.
+That is: $dt$ and $(dW)^2$ are of the same order and contribute, whereas $(dt)^2$ and $dt \, dW$
+vanish in the limit. In classical calculus (where $(dt)^2$ appears instead of $(dW)^2$) the
+second-order term disappears and the change of variables keeps a single integral.
+
+\begin{teorema}{Itô's Lemma}{lema_ito}
+Let $g \in C^2(\mathbb{R})$. If $Z_t = g(W_t)$,
+$$ dZ_t = g'(W_t) \, dW_t + \tfrac{1}{2} g''(W_t) \, dt. $$
+In integral form:
+$$ g(W_b) - g(W_a) = \int_a^b g'(W_s) \, dW_s + \frac{1}{2} \int_a^b g''(W_s) \, ds. $$
+\end{teorema}
+
+\begin{proof}
+Fix a partition $a = t_0 < t_1 < \cdots < t_m = b$ with mesh $\delta = \max_k (t_k -
+t_{k-1})$. Write $\Delta W_k = W_{t_k} - W_{t_{k-1}}$ and $\Delta t_k = t_k - t_{k-1}$.
+By a telescoping sum,
+$$ g(W_b) - g(W_a) = \sum_{k=1}^m [g(W_{t_k}) - g(W_{t_{k-1}})]. $$
+
+\textit{Taylor of order 2.} Since $g \in C^2$, for each $k$ there is $\xi_k$ between $W_{t_{k-1}}$ and
+$W_{t_k}$ with
+$$ g(W_{t_k}) - g(W_{t_{k-1}}) = g'(W_{t_{k-1}}) \Delta W_k + \tfrac{1}{2} g''(\xi_k) (\Delta
+W_k)^2. $$
+Summing over $k$, the sum splits into two terms:
+$$ g(W_b) - g(W_a) = \underbrace{\sum_{k=1}^m g'(W_{t_{k-1}}) \Delta W_k}_{I_m} +
+\underbrace{\tfrac{1}{2} \sum_{k=1}^m g''(\xi_k) (\Delta W_k)^2}_{J_m}. $$
+
+\textit{Term $I_m$.} By the construction of the Itô integral as the $L^2$ limit of
+left-endpoint Riemann sums,
+$$ I_m \xrightarrow{L^2(\Omega)}{} \int_a^b g'(W_s) \, dW_s. $$
+
+\textit{Term $J_m$.} It is split in two:
+$$ J_m = \tfrac{1}{2} \sum_k g''(W_{t_{k-1}}) (\Delta W_k)^2 + \tfrac{1}{2} \sum_k [g''(\xi_k) -
+g''(W_{t_{k-1}})] (\Delta W_k)^2 =: J_m^{(1)} + J_m^{(2)}. $$
+
+For $J_m^{(1)}$, the quadratic variation is used: given $\epsilon > 0$, fine partitions make
+$\sum_k (\Delta W_k)^2 \to b - a$ in $L^2$. Moreover, for a continuous function
+$h$, the convergence
+$$ \sum_k h(W_{t_{k-1}}) (\Delta W_k)^2 \xrightarrow{L^2}{} \int_a^b h(W_s) \, ds $$
+holds. (This result is the analogue of the fundamental theorem for quadratic variation.)
+Applying it with $h = g''$,
+$$ J_m^{(1)} \xrightarrow{L^2}{} \tfrac{1}{2} \int_a^b g''(W_s) \, ds. $$
+
+For $J_m^{(2)}$: since $g''$ is continuous and the $\xi_k$ lie between $W_{t_{k-1}}$ and $W_{t_k}$ with
+$|W_{t_k} - W_{t_{k-1}}| \to 0$ by uniform continuity of Brownian motion on compact sets,
+$\max_k |g''(\xi_k) - g''(W_{t_{k-1}})| \to 0$ almost everywhere. Since $\sum (\Delta W_k)^2$ is
+bounded in $L^1$ (its expectation is $b - a$),
+$$ |J_m^{(2)}| \le \tfrac{1}{2} \max_k |g''(\xi_k) - g''(W_{t_{k-1}})| \cdot \sum_k (\Delta W_k)^2
+\xrightarrow{}{} 0. $$
+
+\textit{Conclusion.} Letting $\delta \to 0$ in
+$g(W_b) - g(W_a) = I_m + J_m^{(1)} + J_m^{(2)}$, one gets
+$$ g(W_b) - g(W_a) = \int_a^b g'(W_s) \, dW_s + \tfrac{1}{2} \int_a^b g''(W_s) \, ds. $$
+\end{proof}
+
+\textbf{Version with $t$.} If $g \in C^{1, 2}(\mathbb{R}_{\ge 0} \times \mathbb{R})$ and
+$Z_t = g(t, W_t)$,
+$$ dZ_t = \frac{\partial g}{\partial t} dt + \frac{\partial g}{\partial x} dW_t + \frac{1}{2}
+\frac{\partial^2 g}{\partial x^2} dt. $$
+
+\subsection{Examples}
+
+\begin{ejemplo}{Square of Brownian motion}{cuadrado_W}
+Applying Itô to $g(x) = x^2$, $g'(x) = 2x$, $g''(x) = 2$. One gets
+$$ W_b^2 - W_a^2 = \int_a^b 2 W_s \, dW_s + \int_a^b 1 \, ds, $$
+whence $\int_a^b W \, dW = \tfrac{W_b^2 - W_a^2}{2} - \tfrac{b - a}{2}$. Note the term
+$-(b-a)/2$, absent in classical calculus.
+\end{ejemplo}
+
+\begin{ejemplo}{Geometric Brownian motion}{browniano_geo}
+Solve the stochastic differential equation
+$$ dX_t = \mu X_t \, dt + \sigma X_t \, dW_t, \qquad X_0 \text{ given}. $$
+Take $Y_t = \ln X_t$ and apply Itô with $g(x) = \ln x$, $g'(x) = 1/x$, $g''(x) = -1/x^2$:
+\begin{align*}
+d(\ln X_t) &= \frac{1}{X_t} dX_t - \frac{1}{2 X_t^2} (dX_t)^2 \\
+&= \frac{1}{X_t} (\mu X_t \, dt + \sigma X_t \, dW_t) - \frac{1}{2 X_t^2} \sigma^2 X_t^2 \, dt \\
+&= \left(\mu - \tfrac{\sigma^2}{2}\right) dt + \sigma \, dW_t.
+\end{align*}
+Integrating, $\ln X_t = \ln X_0 + (\mu - \tfrac{\sigma^2}{2}) t + \sigma W_t$, so that
+$$ X_t = X_0 \exp\!\left(\sigma W_t + \left(\mu - \tfrac{\sigma^2}{2}\right) t\right). $$
+This is the classical model of the price of an asset in finance (Black-Scholes model).
+\end{ejemplo}
+
+\newpage
+
+\subsection{General stochastic processes}
+
+\begin{definicion}{Itô process}{proceso_ito}
+An \emph{Itô process} is a process of the form
+$$ X_t = X_0 + \int_0^t f(X_s, s) \, ds + \int_0^t g(X_s, s) \, dW_s, $$
+written in differential form as
+$$ dX_t = f(X_t, t) \, dt + g(X_t, t) \, dW_t. $$
+$f$ is called the \emph{drift} and $g$ the \emph{diffusion coefficient}.
+\end{definicion}
+
+\begin{teorema}{Generalized Itô}{ito_general}
+If $X_t$ is an Itô process as above and $h \in C^{1,2}(\mathbb{R}_{\ge 0} \times \mathbb{R})$,
+$M_t = h(t, X_t)$ satisfies
+$$ dM_t = \left(\frac{\partial h}{\partial t} + f \frac{\partial h}{\partial x} + \frac{g^2}{2}
+\frac{\partial^2 h}{\partial x^2}\right) dt + g \frac{\partial h}{\partial x} \, dW_t. $$
+\end{teorema}
+
+\begin{proof}
+Same strategy as Itô's lemma. Partition $[0, T]$ with $0 = t_0 < t_1 < \cdots < t_m =
+T$ and apply Taylor of order 2 to $h$:
+$$ h(t_k, X_{t_k}) - h(t_{k-1}, X_{t_{k-1}}) = h_t \Delta t_k + h_x \Delta X_k + \tfrac{1}{2}
+[h_{tt} (\Delta t_k)^2 + 2 h_{tx} \Delta t_k \Delta X_k + h_{xx} (\Delta X_k)^2] + \cdots, $$
+with derivatives evaluated at $(t_{k-1}, X_{t_{k-1}})$. Since $\Delta X_k = f \Delta t_k + g \Delta W_k
++ o(\sqrt{\Delta t_k})$,
+$$ (\Delta X_k)^2 = g^2 (\Delta W_k)^2 + 2 f g \Delta t_k \Delta W_k + f^2 (\Delta t_k)^2 +
+\cdots. $$
+The asymptotic rules of quadratic variation give
+$$ \sum (\Delta t_k)^2 \to 0, \qquad \sum \Delta t_k \Delta W_k \to 0, \qquad \sum (\Delta W_k)^2
+\to \int dt, $$
+so that only the term $h_{xx} g^2 (\Delta W)^2 / 2 \to \tfrac{g^2}{2} h_{xx} \, dt$ survives.
+Adding the first-order terms, $h_t \, dt + h_x (f \, dt + g \, dW) = (h_t + f h_x) dt + g h_x
+\, dW$. Adding the surviving quadratic term of $h_{xx}$, the stated formula
+is obtained.
+\end{proof}
+
+\newpage
+
+\section{Girsanov's Theorem}
+
+What happens to the distribution of a process if the probability measure is changed?
+Girsanov says exactly how a Brownian motion transforms under an absolutely continuous
+change of measure.
+
+\subsection{Motivation: change of mean of a normal}
+
+Let $Z \sim \mathcal{N}(0, 1)$ under $P$. It is shown that there is a measure $Q$, equivalent to $P$ (that
+is, $P \ll Q \ll P$), such that $Z \sim \mathcal{N}(\mu, 1)$ under $Q$. For this, first compute
+$$ E_P(e^{\mu Z}) = \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty e^{\mu t} e^{-t^2/2} \, dt =
+\frac{1}{\sqrt{2\pi}} \int e^{-(t-\mu)^2/2} dt \cdot e^{\mu^2/2} = e^{\mu^2/2}. $$
+Therefore $E_P(e^{\mu Z - \mu^2/2}) = 1$.
+
+\textbf{Change of measure.} For $A \in \mathcal{F}$ define
+$$ Q(A) = \int_A e^{\mu Z - \mu^2/2} \, dP. $$
+$Q$ is a probability measure (positive, $\sigma$-additive, $Q(\Omega) = 1$). Under $Q$,
+the distribution of $Z$ is computed:
+\begin{align*}
+F_Q(a) = Q(\{Z \le a\}) &= \int_{\{Z \le a\}} e^{\mu Z - \mu^2/2} \, dP \\
+&= \frac{1}{\sqrt{2\pi}} \int_{-\infty}^\infty \mathbf{1}_{\{t \le a\}} e^{\mu t - \mu^2/2}
+e^{-t^2/2} dt \\
+&= \frac{1}{\sqrt{2\pi}} \int_{-\infty}^a e^{-(t - \mu)^2/2} dt,
+\end{align*}
+that is, $Z \sim \mathcal{N}(\mu, 1)$ under $Q$.
+
+\subsection{Continuous version}
+
+Before the statement, observe why the candidate density is a martingale. Let
+$$ Y_t = \int_0^t X_s \, dW_s - \frac{1}{2} \int_0^t X_s^2 \, ds, \qquad M_t = e^{Y_t}, $$
+that is $dY_t = X_t \, dW_t - \tfrac{1}{2} X_t^2 \, dt$, with $(dY_t)^2 = X_t^2 \, dt$ by the
+rules of quadratic variation. By Itô's lemma with $g(s) = e^s$,
+$$ dM_t = e^{Y_t} \, dY_t + \tfrac{1}{2} e^{Y_t} (dY_t)^2 = e^{Y_t} \left( X_t \, dW_t -
+\tfrac{1}{2} X_t^2 \, dt + \tfrac{1}{2} X_t^2 \, dt \right) = M_t X_t \, dW_t. $$
+The drift term cancels exactly (that is what the $-\tfrac{1}{2} \int_0^t X_s^2
+\, ds$ in the definition is for), and one gets $M_t = 1 + \int_0^t M_s X_s \, dW_s$: an Itô integral,
+which is a martingale with mean $E(M_t) = 1$ provided the integrand is sufficiently
+integrable. The Novikov condition in the statement guarantees exactly that.
+
+\begin{teorema}{Girsanov}{girsanov}
+Let $(W_t)_{t \in [0, T]}$ be a Brownian motion under $P$ and let $(X_t)$ be a sufficiently integrable
+adapted process. Define
+$$ M_t = \exp\!\left( \int_0^t X_s \, dW_s - \frac{1}{2} \int_0^t X_s^2 \, ds \right). $$
+Under reasonable conditions (\emph{Novikov's condition}: $E[e^{\tfrac{1}{2} \int_0^T X_s^2 ds}]
+< \infty$), $M_t$ is a martingale and $E(M_T) = 1$. Define the measure
+$$ Q(A) = \int_A M_T \, dP \qquad (A \in \mathcal{F}_T). $$
+Then $Q$ is equivalent to $P$, and the process
+$$ \widetilde{W}_t = W_t - \int_0^t X_s \, ds $$
+is a Brownian motion under $Q$.
+\end{teorema}
+
+\obs In the particular case $X_t \equiv \mu/\sigma$ (constant), taking $W_t' = \sigma W_t$ with
+drift $\mu$, Girsanov says that $\widetilde{W}_t = W_t - \mu t/\sigma$ is a Brownian motion under
+$Q$ with $dQ/dP = \exp(\tfrac{\mu}{\sigma} W_T - \tfrac{\mu^2}{2\sigma^2} T)$. This justifies the
+change of the geometric Black-Scholes model from the real-world measure to the risk-neutral
+measure, on which the pricing of derivatives rests.
+
+\obs Girsanov is the continuous version of Radon-Nikodym applied to processes. The derivative
+$dQ/dP = M_T$ is called the \emph{Doléans-Dade exponential} of $\int X \, dW$.
+
+\newpage
+
+\section{Application: the Black-Scholes model}
+
+The tools constructed so far (Brownian motion, Itô, Girsanov) have an emblematic
+application: the Black-Scholes formula for pricing financial options. It is a case where
+the whole apparatus is put to work.
+
+\subsection{Model of the asset}
+
+Consider an \emph{underlying asset} with price $S_t$ that evolves according to a geometric
+Brownian motion:
+$$ dS_t = \mu S_t \, dt + \sigma S_t \, dW_t, \qquad S_0 \text{ given}, $$
+where $\mu \in \mathbb{R}$ is the \emph{expected rate of return} and $\sigma > 0$ the
+\emph{volatility}. As seen when solving the SDE with Itô,
+$$ S_t = S_0 \exp\!\left(\sigma W_t + \left(\mu - \tfrac{\sigma^2}{2}\right) t\right). $$
+Alongside there is a \emph{risk-free asset} (bond) that grows at a constant rate $r$:
+$$ B_t = e^{rt}, \qquad dB_t = r B_t \, dt. $$
+
+\textbf{Derivative.} A \emph{derivative} is a contract that pays a function $\Phi(S_T)$ at a
+future time $T$. For example, a European \emph{call option} with \emph{strike} $K$ pays
+$$ \Phi(S_T) = (S_T - K)^+ = \max(S_T - K, 0). $$
+The problem: what is the fair price $C_0$ to pay today for this contract?
+
+\subsection{No-arbitrage argument and risk-neutral measure}
+
+\textbf{Strategy.} If one can build, with $C_0$ dollars today, a portfolio that at $T$
+replicates exactly the payoff $\Phi(S_T)$, then $C_0$ is the only price compatible with the
+\emph{absence of arbitrage} (no possibility of a sure gain without investment).
+
+\textbf{Reduction to the discounted asset.} Let $\widetilde{S}_t = S_t / B_t = e^{-rt} S_t$, the price
+of the asset measured in bonds. By Itô,
+$$ d\widetilde{S}_t = (\mu - r) \widetilde{S}_t \, dt + \sigma \widetilde{S}_t \, dW_t. $$
+If the drift $(\mu - r) \widetilde{S}_t \, dt$ could be made to disappear, $\widetilde{S}$
+would be a
+martingale. This is exactly what Girsanov provides: taking
+$$ X_t \equiv \frac{\mu - r}{\sigma}, $$
+the measure $Q$ with $dQ/dP = \exp(-\tfrac{\mu - r}{\sigma} W_T - \tfrac{1}{2}(\tfrac{\mu-r}{\sigma})^2
+T)$
+makes
+$$ \widetilde{W}_t = W_t + \tfrac{\mu - r}{\sigma} t $$
+a Brownian motion under $Q$. Rewriting,
+$$ d\widetilde{S}_t = \sigma \widetilde{S}_t \, d\widetilde{W}_t \qquad \text{(under $Q$)}, $$
+that is, $\widetilde{S}$ is a martingale under $Q$.
+
+\begin{definicion}{Risk-neutral measure}{Q_neutral}
+The \emph{risk-neutral measure} is the unique measure $Q$ equivalent to $P$ such that
+$\widetilde{S}_t = e^{-rt} S_t$ is a martingale under $Q$. Under $Q$, the price of the asset evolves
+with drift $r$ (not $\mu$):
+$$ dS_t = r S_t \, dt + \sigma S_t \, d\widetilde{W}_t, \qquad S_t = S_0 \exp\!\left(\sigma
+\widetilde{W}_t + (r - \tfrac{\sigma^2}{2}) t\right). $$
+\end{definicion}
+
+\obs The name ``risk-neutral'' is because under $Q$ \emph{every asset} (both $S$ and $B$)
+grows, on average, at the same rate $r$: there is no risk premium. The investors' attitude
+toward risk, which affects the real-world drift $\mu$, disappears under $Q$.
+
+\subsection{Pricing formula}
+
+\begin{teorema}{Black-Scholes price (general version)}{bs_general}
+Under no arbitrage and market completeness, the fair price at $t = 0$ of a derivative with payoff
+$\Phi(S_T)$ is
+$$ C_0 = e^{-rT} E_Q(\Phi(S_T)). $$
+\end{teorema}
+
+\begin{proof}
+\textit{Self-financing portfolio.} A portfolio is described by adapted processes $(\alpha_t, \beta_t)$
+that indicate how many units of the asset and of the bond are held at each moment. Its value
+is
+$$ V_t = \alpha_t S_t + \beta_t B_t. $$
+The portfolio is \emph{self-financing} if its variation comes only from the price variations:
+$$ dV_t = \alpha_t \, dS_t + \beta_t \, dB_t. $$
+In terms of the discounted value $\widetilde{V}_t = V_t / B_t$, by Itô applied to
+$V_t \cdot e^{-rt}$,
+$$ d\widetilde{V}_t = \alpha_t \, d\widetilde{S}_t. $$
+
+\textit{Replication and martingale under $Q$.} Suppose there is a self-financing portfolio that
+\emph{replicates} the payoff: $V_T = \Phi(S_T)$. Under $Q$, $\widetilde{S}_t$ is a martingale (by
+Girsanov), and then
+$$ \widetilde{V}_t - \widetilde{V}_0 = \int_0^t \alpha_s \, d\widetilde{S}_s $$
+is an Itô integral with respect to a martingale, therefore $\widetilde{V}_t$ is a martingale
+under $Q$ (assuming the necessary integrability). Taking expectations,
+$$ \widetilde{V}_0 = E_Q(\widetilde{V}_T) = E_Q(e^{-rT} \Phi(S_T)). $$
+And $V_0 = \widetilde{V}_0$ because $B_0 = 1$, which gives $C_0 = V_0 = e^{-rT} E_Q(\Phi(S_T))$.
+
+\textit{Existence of the replicating portfolio.} In the Black-Scholes model (one asset, one bond),
+the market is \emph{complete}: by a martingale representation theorem (the discounted
+martingale $\widetilde{C}_t = E_Q(e^{-rT} \Phi(S_T) \mid \widetilde{\mathcal{F}}_t)$ is written as an
+Itô integral with respect to $\widetilde{W}$, which gives $\alpha_t$), such a portfolio always exists.
+The \emph{no-arbitrage} argument implies that its initial price is unique.
+\end{proof}
+
+\subsection{Explicit formula for the European call}
+
+Take $\Phi(s) = (s - K)^+$. Under $Q$, $S_T = S_0 \exp(\sigma \widetilde{W}_T + (r -
+\sigma^2/2) T)$, with $\widetilde{W}_T \sim \mathcal{N}(0, T)$, that is
+$\ln S_T \sim \mathcal{N}(\ln S_0 + (r - \sigma^2/2) T, \ \sigma^2 T)$.
+
+Define
+$$ d_1 = \frac{\ln(S_0/K) + (r + \sigma^2/2) T}{\sigma \sqrt{T}}, \qquad
+d_2 = d_1 - \sigma \sqrt{T}, $$
+and $N(\cdot)$ the distribution function of a standard normal.
+
+\begin{teorema}{Black-Scholes formula}{bs_formula}
+The price of a European call option with strike $K$ and maturity $T$ is
+$$ C_0 = S_0 \, N(d_1) - K e^{-rT} \, N(d_2). $$
+\end{teorema}
+
+\begin{proof}[Proof (direct computation)]
+Compute $E_Q((S_T - K)^+)$. Under $Q$ write
+$$ S_T = S_0 \, e^{\sigma \sqrt{T} Z + (r - \sigma^2/2) T}, \qquad Z \sim \mathcal{N}(0, 1). $$
+The condition $S_T > K$ is equivalent to
+$$ Z > \frac{\ln(K/S_0) - (r - \sigma^2/2) T}{\sigma \sqrt{T}} = -d_2. $$
+Therefore,
+\begin{align*}
+E_Q(S_T \mathbf{1}_{S_T > K}) &= S_0 e^{(r - \sigma^2/2) T} \int_{-d_2}^\infty e^{\sigma \sqrt{T} z}
+\frac{e^{-z^2/2}}{\sqrt{2\pi}} dz \\
+&= S_0 e^{rT} \int_{-d_2}^\infty \frac{e^{-(z - \sigma\sqrt{T})^2/2}}{\sqrt{2\pi}} dz
+\qquad \text{(completing the square)} \\
+&= S_0 e^{rT} \cdot P(Z' > -d_2 - \sigma\sqrt{T}) \quad \text{with } Z' \sim \mathcal{N}(0,1) \\
+&= S_0 e^{rT} \, N(d_2 + \sigma\sqrt{T}) = S_0 e^{rT} \, N(d_1).
+\end{align*}
+And $E_Q(K \mathbf{1}_{S_T > K}) = K \cdot P(Z > -d_2) = K \, N(d_2)$. Substituting in
+$C_0 = e^{-rT} E_Q((S_T - K)^+) = e^{-rT}[E_Q(S_T \mathbf{1}_{S_T > K}) - K E_Q(\mathbf{1}_{S_T >
+K})]$,
+$$ C_0 = e^{-rT}[S_0 e^{rT} N(d_1) - K N(d_2)] = S_0 N(d_1) - K e^{-rT} N(d_2). $$
+\end{proof}
+
+\subsection{Financial interpretation}
+
+\begin{itemize}
+    \item $N(d_2)$ is the probability under $Q$ that the option \emph{ends in-the-money}, that
+    is, $S_T > K$. The second term $K e^{-rT} N(d_2)$ is the discounted value of paying $K$
+    in that case.
+    \item $S_0 N(d_1)$ is the \emph{delta hedge}: the amount of underlying (in present value)
+    that must be held in the portfolio to replicate the payoff of the call.
+    \item The formula \emph{does not depend} on $\mu$, the real drift of the asset. It depends only on
+    $\sigma$, $r$, $S_0$, $K$, $T$. This was a historical surprise: the fair price does not require
+    estimating how the stock grows, only how much it fluctuates.
+\end{itemize}
+
+\obs The model has strong assumptions (constant volatility, no jumps, no transaction
+costs, possibility of continuous trading). In practice systematic deviations are observed
+(volatility smile, jumps) that motivate more sophisticated models (Heston, models with
+jumps, stochastic volatility). But Black-Scholes is still the baseline reference.
+
+\end{document}
